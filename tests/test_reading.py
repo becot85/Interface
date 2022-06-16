@@ -2,7 +2,7 @@
 # Created by: Benoit Cote (June, 2022)
 
 # Import Interface tools
-from interface import read_data_file
+from Interface import read_data_file
 
 # TestReading class
 # =================
