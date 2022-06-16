@@ -78,6 +78,9 @@ class data( object ):
                 if type(self.data[quantity][i_entry]) == list:
                     self.data[quantity][i_entry] = np.array(self.data[quantity][i_entry])
 
+        # TEST for braking test suite
+        self.data[quantity][0] = "2aa"
+
 
 
     #############################
