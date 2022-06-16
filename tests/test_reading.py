@@ -189,3 +189,41 @@ class TestReading:
         assert d.nb_entries == 3
         assert d.nb_quantities == 3
 
+
+    # Test file #7
+    # ============
+    def test_file_7(self):
+
+        # Read data file
+        d = self.rdf.read_file("file_7.txt", "file_7_structure.txt")
+
+        # Compare read data against raw data
+        assert list(d.data["a"][0]) == [6, 6]
+        assert list(d.data["a"][1]) == [7, 7]
+        assert list(d.data["a"][2]) == [8, 8]
+        assert list(d.data["a"][3]) == [52, 52]
+        assert list(d.data["z"][0]) == [3, 3]
+        assert list(d.data["z"][1]) == [4, 4]
+        assert list(d.data["z"][2]) == [3, 3]
+        assert list(d.data["z"][3]) == [26, 26]
+        assert list(d.data["T9"][0]) == [0.01, 0.011]
+        assert list(d.data["T9"][1]) == [0.2, 0.202]
+        assert list(d.data["T9"][2]) == [0.1, 0.103]
+        assert list(d.data["T9"][3]) == [1.5, 1.504]
+        assert list(d.data["rho"][0]) == [1, 2]
+        assert list(d.data["rho"][1]) == [5, 6]
+        assert list(d.data["rho"][2]) == [4, 5]
+        assert list(d.data["rho"][3]) == [3, -4]
+        assert list(d.data["r1"][0]) == [None, 1.1]
+        assert list(d.data["r1"][1]) == [None, None]
+        assert list(d.data["r1"][2]) == [2.2, None]
+        assert list(d.data["r1"][3]) == [-4.847, -4.233]
+        assert list(d.data["r2"][0]) == [-100.000, -100.000]
+        assert list(d.data["r2"][1]) == [-59.098, -54.914]
+        assert list(d.data["r2"][2]) == [-100.000, -100.000]
+        assert list(d.data["r2"][3]) == [-5.494, -5.353]
+
+        # Test the number of entries and quantities
+        assert d.nb_entries == 4
+        assert d.nb_quantities == 6
+
