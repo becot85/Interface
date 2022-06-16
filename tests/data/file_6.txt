@@ -1,0 +1,13 @@
+ the    line #1
+a aa
+b bb
+c cc
+d      dd
+END
+the line    #2
+e   ee
+f  ff
+END
+the line #3     
+g gg
+END

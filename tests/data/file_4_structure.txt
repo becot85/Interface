@@ -1,0 +1,8 @@
+id: int
+
+label1: str, 0
+label2: float, 1
+
+list: str, multicolumn
+
+label3: str

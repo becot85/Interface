@@ -1,6 +1,9 @@
 # Tests for the reading process
 # Created by: Benoit Cote (June, 2022)
 
+# Import Python modules
+import numpy  as np
+
 # Import Interface tools
 from Interface import read_data_file
 
@@ -111,4 +114,78 @@ class TestReading:
         assert d.nb_entries == 3
         assert d.nb_quantities == 16
 
+
+    # Test file #4
+    # ============
+    def test_file_4(self):
+
+        # Read data file
+        d = self.rdf.read_file("file_4.txt", "file_4_structure.txt")
+
+        # Compare read data against raw data
+        assert d.data["id"][0] == 11
+        assert d.data["id"][1] == 22
+        assert d.data["label1"][0] == "multicolumn"
+        assert d.data["label1"][1] == "Multicolumn"
+        assert d.data["label2"][0] == 1.1
+        assert d.data["label2"][1] == 2.2
+        assert list(d.data["list"][0]) == ["a", "b", "c", "d"]
+        assert list(d.data["list"][1]) == ["e", "f", "g", "h"]
+        assert d.data["label3"][0] == "ok1"
+        assert d.data["label3"][1] == "ok2"
+
+        # Test the number of entries and quantities
+        assert d.nb_entries == 2
+        assert d.nb_quantities == 5
+
+
+    # Test file #5
+    # ============
+    def test_file_5(self):
+
+        # Read data file
+        d = self.rdf.read_file("file_5.txt", "file_5_structure.txt")
+
+        # Compare read data against raw data
+        assert d.data["comp1"][0] == "p"
+        assert d.data["comp2"][0] == "gd134"
+        assert d.data["comp3"][0] == "tb135"
+        assert d.data["comp1"][1] == "t"
+        assert d.data["comp2"][1] == "he3"
+        assert d.data["comp3"][1] == ""
+        assert d.data["comment"][0] == "aaaa"
+        assert d.data["comment"][1] == "bbbbb"
+        assert d.data["q_value"][0] == -1.18800E+00
+        assert d.data["q_value"][1] == 1.85910e-02
+        assert list(d.data["T9"][0]) == [1e-3, 2e-3, 3e-3]
+        assert list(d.data["T9"][1]) == [1.1e-3, 2.2e-3, 3.3e-3]
+        assert list(d.data["rate"][0]) == [0, 0, 1]
+        assert list(d.data["rate"][1]) == [0.123E-09, 3.783E-09, 1.543E-09]
+
+        # Test the number of entries and quantities
+        assert d.nb_entries == 2
+        assert d.nb_quantities == 7
+
+
+    # Test file #6
+    # ============
+    def test_file_6(self):
+
+        # Read data file
+        d = self.rdf.read_file("file_6.txt", "file_6_structure.txt")
+
+        # Compare read data against raw data
+        assert d.data["label"][0] == "the line #1"
+        assert d.data["label"][1] == "the line #2"
+        assert d.data["label"][2] == "the line #3"
+        assert list(d.data["value1"][0]) == ["a", "b", "c", "d"]
+        assert list(d.data["value1"][1]) == ["e", "f"]
+        assert list(d.data["value1"][2]) == ["g"]
+        assert list(d.data["value2"][0]) == ["aa", "bb", "cc", "dd"]
+        assert list(d.data["value2"][1]) == ["ee", "ff"]
+        assert list(d.data["value2"][2]) == ["gg"]
+
+        # Test the number of entries and quantities
+        assert d.nb_entries == 3
+        assert d.nb_quantities == 3
 
