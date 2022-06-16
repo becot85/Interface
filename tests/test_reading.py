@@ -2,7 +2,7 @@
 # Created by: Benoit Cote (June, 2022)
 
 # Import Interface tools
-#from interface import read_data_file
+from interface import read_data_file
 
 # TestReading class
 # =================
@@ -14,7 +14,4 @@ class TestReading:
 
     def test_ttt(self):
         assert True
-
-    def test_aaa(self):
-        assert False
     
