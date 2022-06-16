@@ -1,0 +1,4 @@
+label: str
+
+value1: float, 0
+value2: str, 2
