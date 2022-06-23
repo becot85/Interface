@@ -7,6 +7,7 @@ import numpy  as np
 # Import Interface tools
 from Interface import read_data_file
 
+
 # TestFiltering class
 # ===================
 class TestFiltering:
@@ -17,6 +18,7 @@ class TestFiltering:
 
     # Read the test-case file to be filtered
     d = rdf.read_file("file_8.txt", "file_8_structure.txt")
+
 
     # Test filter #1
     # ==============
@@ -285,6 +287,48 @@ class TestFiltering:
         quantities = ["number", "label"]
         conditions = ["A not in string", "h not in string"]
         expected = [[-0.9, "label3"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+
+    # Test filter #9
+    # ==============
+    def test_filter_9(self):
+        '''Testing the combination of operators. '''
+
+        # Compare filtered data with the raw data
+        quantities = "label"
+        conditions = ["number > 1", "h in string"]
+        expected = [["label2"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["number", "left"]
+        conditions = ["right <= 3", "right > 0.2"]
+        expected = [[0.100445, [1,2,3]], [-9e-1, [1]], [2.6, [2,3]]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["string","left"]
+        conditions = ["left < 4", "right > 10"]
+        expected = [["AokE haaa", [1,2,3]]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["string","left"]
+        conditions = ["left <= 4", "right > 10"]
+        expected = [["AokE haaa", [1,2,3,4]], ["ACBMD QFY", [4]]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["label"]
+        conditions = ["right = 5", "left != 3"]
+        expected = [["label1"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["label"]
+        conditions = ["right = 5", "left = 3"]
+        expected = [["label3"]]
         self.__compare_filter(quantities, conditions, expected)
 
 
