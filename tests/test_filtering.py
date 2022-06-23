@@ -18,11 +18,6 @@ class TestFiltering:
     # Read the test-case file to be filtered
     d = rdf.read_file("file_8.txt", "file_8_structure.txt")
 
-    # <
-    # in
-    # not in
-
-
     # Test filter #1
     # ==============
     def test_filter_1(self):
@@ -241,6 +236,55 @@ class TestFiltering:
         quantities = ["left"]
         conditions = ["right < 5"]
         expected = [[[1,2,3,4]], [[1,2]], [[1,2,3]]]
+        self.__compare_filter(quantities, conditions, expected)
+
+
+    # Test filter #7
+    # ==============
+    def test_filter_7(self):
+        '''Testing the in operator. '''
+
+        # Compare filtered data with the raw data
+        quantities = "label"
+        conditions = ["k in string"]
+        expected = [["label1"], ["label2"], ["label3"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["right", "string"]
+        conditions = ["label2 in label"]
+        expected = [[[13,24,35,47,58],"AokE haaa"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["number", "label"]
+        conditions = ["A in string", "h in string"]
+        expected = [[0.100445, "label1"], [35, "label2"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+
+    # Test filter #8
+    # ==============
+    def test_filter_8(self):
+        '''Testing the not in operator. '''
+
+        # Compare filtered data with the raw data
+        quantities = "label"
+        conditions = ["k not in string"]
+        expected = [["label4"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["right", "string"]
+        conditions = ["label2 not in label"]
+        expected = [[[1,2,3,4,5],"Adki bla hh"], [[3,4,5,7,8],"Niak6^^ a"],
+                    [[0.2,0.3,0.4,100,10000], "ACBMD QFY"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["number", "label"]
+        conditions = ["A not in string", "h not in string"]
+        expected = [[-0.9, "label3"]]
         self.__compare_filter(quantities, conditions, expected)
 
 

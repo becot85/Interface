@@ -4,6 +4,7 @@ label1   0.100445
 1 1
 2 2
 3 3
+HHH This should be ignored
 4 4
 5 5
 AokE haaa
@@ -22,8 +23,10 @@ label3   -9e-1
 5 8
 ACBMD QFY
 label4   2.6
+HHH This should be ignored
 1 0.2
 2 0.3
 3 0.4
 4 100.0
 5 1e4
+HHH This should be ignored
