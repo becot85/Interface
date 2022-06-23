@@ -1,3 +1,8 @@
+$IGNORE: Do not
+
+$ONCE
+common: float, multicolumn
+
 $MULTILINE: 2
 a: int, 0
 z: int, 1

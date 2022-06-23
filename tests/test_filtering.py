@@ -50,9 +50,9 @@ class TestFiltering:
         self.__compare_filter(quantities, conditions, expected)
 
         # Compare filtered data with the raw data
-        quantities = ["left"]
+        quantities = ["left", "test1"]
         conditions = ["right = 5"]
-        expected = [[[5]], [[3]]]
+        expected = [[[5],"test1"], [[3],"test1"]]
         self.__compare_filter(quantities, conditions, expected)
 
 
@@ -87,9 +87,10 @@ class TestFiltering:
         self.__compare_filter(quantities, conditions, expected)
 
         # Compare filtered data with the raw data
-        quantities = ["left"]
+        quantities = ["left", "test3"]
         conditions = ["right != 5"]
-        expected = [[[1,2,3,4]], [[1,2,3,4,5]], [[1,2,4,5]], [[1,2,3,4,5]]]
+        expected = [[[1,2,3,4],"test3"], [[1,2,3,4,5],"test3"], 
+                    [[1,2,4,5],"test3"], [[1,2,3,4,5],"test3"]]
         self.__compare_filter(quantities, conditions, expected)
 
 
@@ -124,9 +125,10 @@ class TestFiltering:
         self.__compare_filter(quantities, conditions, expected)
 
         # Compare filtered data with the raw data
-        quantities = ["left"]
+        quantities = ["left","test2"]
         conditions = ["right >= 5"]
-        expected = [[[5]], [[1,2,3,4,5]], [[3,4,5]], [[4,5]]]
+        expected = [[[5],"test2"], [[1,2,3,4,5],"test2"], 
+                    [[3,4,5],"test2"], [[4,5],"test2"]]
         self.__compare_filter(quantities, conditions, expected)
 
 

@@ -198,6 +198,10 @@ class TestReading:
         d = self.rdf.read_file("file_7.txt", "file_7_structure.txt")
 
         # Compare read data against raw data
+        assert list(d.data["common"][0]) == [1.1, 2.2, 3.3, 4.4, -1e10]
+        assert list(d.data["common"][1]) == [1.1, 2.2, 3.3, 4.4, -1e10]
+        assert list(d.data["common"][2]) == [1.1, 2.2, 3.3, 4.4, -1e10]
+        assert list(d.data["common"][3]) == [1.1, 2.2, 3.3, 4.4, -1e10]
         assert list(d.data["a"][0]) == [6, 6]
         assert list(d.data["a"][1]) == [7, 7]
         assert list(d.data["a"][2]) == [8, 8]
@@ -225,5 +229,5 @@ class TestReading:
 
         # Test the number of entries and quantities
         assert d.nb_entries == 4
-        assert d.nb_quantities == 6
+        assert d.nb_quantities == 7
 

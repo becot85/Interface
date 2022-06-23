@@ -1,5 +1,10 @@
 $IGNORE: HH This
 
+$ONCE
+test1: str, 0
+test2: str, 1
+test3: str, 2
+
 string: str
 
 label: str, 0
