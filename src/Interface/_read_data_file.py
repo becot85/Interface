@@ -713,7 +713,7 @@ class read_data_file( data_file.data_file ):
                 # Add the quantity value in the data dictionary
                 if q in key_available:
                     if "$ONCE" in q:
-                        data[q.split("$ONCE")[0]] = entries[i_entry][q]
+                        data[q.split("$ONCE")[0]] = [entries[i_entry][q]] * len(entries)
                         del data[q]
                     else:
                         data[q].append(entries[i_entry][q])
