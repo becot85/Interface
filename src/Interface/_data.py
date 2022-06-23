@@ -264,7 +264,7 @@ class data( object ):
         q_return = []
         
         # For each entry in the (possibly filtered) data ..
-        for i_entry in range(data_temp.nb_entries)-1:
+        for i_entry in range(data_temp.nb_entries):
 
             # Collect the value of each requested quantity
             q_return.append([])
