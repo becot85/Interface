@@ -1,0 +1,10 @@
+$IGNORE: HH This
+
+string: str
+
+label: str, 0
+number: float, 1
+
+$MULTILINE: 5
+left: int, 0
+right: float, 1
