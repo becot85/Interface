@@ -18,7 +18,6 @@ class TestFiltering:
     # Read the test-case file to be filtered
     d = rdf.read_file("file_8.txt", "file_8_structure.txt")
 
-    # <=
     # <
     # in
     # not in
@@ -53,6 +52,12 @@ class TestFiltering:
         expected = [["AokE haaa"]]
         self.__compare_filter(quantities, conditions, expected)
 
+        # Compare filtered data with the raw data
+        quantities = ["left"]
+        conditions = ["right = 5"]
+        expected = [[[5]], [[3]]]
+        self.__compare_filter(quantities, conditions, expected)
+
 
     # Test filter #2
     # ==============
@@ -82,6 +87,12 @@ class TestFiltering:
         quantities = ["string"]
         conditions = ["number != 2.6"]
         expected = [["Adki bla hh"], ["AokE haaa"], ["Niak6^^ a"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["left"]
+        conditions = ["right != 5"]
+        expected = [[[1,2,3,4]], [[1,2,3,4,5]], [[1,2,4,5]], [[1,2,3,4,5]]]
         self.__compare_filter(quantities, conditions, expected)
 
 
@@ -115,6 +126,12 @@ class TestFiltering:
         expected = [["AokE haaa"], ["ACBMD QFY"]]
         self.__compare_filter(quantities, conditions, expected)
 
+        # Compare filtered data with the raw data
+        quantities = ["left"]
+        conditions = ["right >= 5"]
+        expected = [[[5]], [[1,2,3,4,5]], [[3,4,5]], [[4,5]]]
+        self.__compare_filter(quantities, conditions, expected)
+
 
     # Test filter #4
     # ==============
@@ -144,6 +161,86 @@ class TestFiltering:
         quantities = ["string"]
         conditions = ["number > 2.6"]
         expected = [["AokE haaa"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["left"]
+        conditions = ["right > 5"]
+        expected = [[[1,2,3,4,5]], [[4,5]], [[4,5]]]
+        self.__compare_filter(quantities, conditions, expected)
+
+
+    # Test filter #5
+    # ==============
+    def test_filter_5(self):
+        '''Testing the <= operator. '''
+
+        # Compare filtered data with the raw data
+        quantities = "label"
+        conditions = ["number <= 0.100445"]
+        expected = [["label1"], ["label3"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["right", "string"]
+        conditions = ["number <= 1.02"]
+        expected = [[[1,2,3,4,5],"Adki bla hh"], [[3,4,5,7,8],"Niak6^^ a"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["label", "right"]
+        conditions = ["left <= 3"]
+        expected = [["label1",[1,2,3]], ["label2",[13,24,35]], 
+                    ["label3",[3,4,5]], ["label4",[0.2,0.3,0.4]]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["string"]
+        conditions = ["number <= 2.6"]
+        expected = [["Adki bla hh"], ["Niak6^^ a"], ["ACBMD QFY"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["left"]
+        conditions = ["right <= 5"]
+        expected = [[[1,2,3,4,5]], [[1,2,3]], [[1,2,3]]]
+        self.__compare_filter(quantities, conditions, expected)
+
+
+    # Test filter #6
+    # ==============
+    def test_filter_6(self):
+        '''Testing the < operator. '''
+
+        # Compare filtered data with the raw data
+        quantities = "label"
+        conditions = ["number < 0.100445"]
+        expected = [["label3"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["right", "string"]
+        conditions = ["number < 1.02"]
+        expected = [[[1,2,3,4,5],"Adki bla hh"], [[3,4,5,7,8],"Niak6^^ a"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["label", "right"]
+        conditions = ["left < 3"]
+        expected = [["label1",[1,2]], ["label2",[13,24]], 
+                    ["label3",[3,4]], ["label4",[0.2,0.3]]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["string"]
+        conditions = ["number < 2.6"]
+        expected = [["Adki bla hh"], ["Niak6^^ a"]]
+        self.__compare_filter(quantities, conditions, expected)
+
+        # Compare filtered data with the raw data
+        quantities = ["left"]
+        conditions = ["right < 5"]
+        expected = [[[1,2,3,4]], [[1,2]], [[1,2,3]]]
         self.__compare_filter(quantities, conditions, expected)
 
 
