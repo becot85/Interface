@@ -315,8 +315,21 @@ class data( object ):
             # If a single operator was found ..
             else:
 
-                # Split the condition using the operator
+                # Add spaces for "in" and "not in" to correctly split condition
+                # Ex: "k in string" should split ["k","string"], not ["k","str","g"]
+                if operator == "in":
+                    operator = " in "
+                elif operator == "not in":
+                    operator = " not in "
+
+                # Split the condition using the operator 
                 split = condition.split(operator)
+
+                # Restore operator's name
+                if operator == " in ":
+                    operator = "in"
+                elif operator == " not in ":
+                    operator = "not in"
 
                 # Error message if one side of the condition is missing
                 if not len(split) == 2:
@@ -491,6 +504,7 @@ class data( object ):
             return string_new
 
 
+
     #######################
     #  Sides Don't Exist  #
     #######################
@@ -658,11 +672,11 @@ class data( object ):
         '''
 
         # Return the condition if the target quantity is a string
-        if type(self.data[right][i_entry]) == str:
+        if isinstance(self.data[right][i_entry], str):
             return left in self.data[right][i_entry]
 
         # If the quantity is a list ..
-        if type(self.data[right][i_entry]) == list or type(self.data[right][i_entry]) == np.ndarray:
+        if isinstance(self.data[right][i_entry], (list, np.ndarray)):
 
             # Return False if the list is empty
             if len(self.data[right][i_entry]) == 0:
