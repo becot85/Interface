@@ -72,10 +72,10 @@ class data( object ):
         self.data = data
         self.__collect_data_quantities()
 
-        # Set arrays to NumPy arrays
+        # Set lists to NumPy arrays
         for i_entry in range(self.nb_entries):
             for quantity in self.data:
-                if type(self.data[quantity][i_entry]) == list:
+                if isinstance(self.data[quantity][i_entry], list):
                     self.data[quantity][i_entry] = np.array(self.data[quantity][i_entry])
 
 
@@ -132,10 +132,9 @@ class data( object ):
         if conditions == None:
             return self
 
-        # Renormalize the input structure
-        if type(conditions) == str:
-            conditions = [conditions]
-        elif not (type(conditions) == list or type(conditions) == np.ndarray):
+        # Reformat the input structure
+        conditions = self.__str_to_list(conditions)
+        if not isinstance(conditions, (list, np.ndarray)):
             print("Error - conditions must be a string or a list of strings.")
             return self
 
@@ -234,8 +233,9 @@ class data( object ):
 
         '''
 
-        Return a list of given quantities from the data, accounting
-        for filtering conditions if provided.
+        Return a multi-D array of given quantities from the data, accounting
+        for filtering conditions if provided. The returned array will be of
+        the form [ entry index ][ quantity index ].
 
         Arguments
         =========
@@ -244,9 +244,8 @@ class data( object ):
 
         '''
 
-        # Renormalize the input structure
-        if type(quantity_list) == str:
-            quantity_list = [quantity_list]
+        # Reformat the input structure
+        quantity_list = self.__str_to_list(quantity_list)
 
         # Check whether the requested quantities exist
         if self.__quantities_dont_exist(quantity_list):
@@ -274,6 +273,96 @@ class data( object ):
         # Return the quantities
         return q_return
 
+
+
+    ######################
+    #  Print Quantities  #
+    ######################
+    def print_quantities(self, quantity_list, conditions=None, nb_print_max=1000):
+
+        '''
+
+        Print the value of given quantities from the data, accounting for 
+        filtering conditions if provided. This is a more-visual version of
+        the get_quantities function. It will not return a multi-D array.
+
+        Arguments
+        =========
+            quantity_list (str or list): Quantity(ies) that need to be returned
+            conditions (string or list): list of conditions to filter data
+            nb_print_max (int): maximmum number of entries that can be printed
+
+        '''
+
+        # Reformat the input conditions
+        if conditions == None:
+            nb_conditions = 0
+        else:
+            conditions = self.__str_to_list(conditions)
+            nb_conditions = len(conditions)
+
+        # Gather the quantities in an array form
+        q = self.get_quantities(quantity_list, conditions)
+        if q == None:
+            return
+        nb_q = len(q)
+
+        # If there is something to print ..
+        if nb_q > 0:
+
+            # Print statistics
+            if nb_conditions == 0:
+                print(nb_q,"entries")
+            else:
+                if nb_conditions > 1:
+                    cc = "conditions"
+                else:
+                    cc = "condition"
+                print(nb_q,"out of",self.nb_entries,"entries met the following",cc)
+                for cond in conditions:
+                    print("  --> ",cond)
+
+            # Reformat the input structure
+            quantity_list = self.__str_to_list(quantity_list)
+            len_quantity_list = len(quantity_list)
+
+            # For each entry ..
+            for i_entry in range(nb_q):
+                print()
+
+                # Print quantities with their label
+                for i_q in range(len_quantity_list):
+                    print(quantity_list[i_q]+": ",q[i_entry][i_q])
+
+                # Stop if too many entries were printed
+                if i_entry == nb_print_max - 1:
+                    print("... not all entries were shown (see nb_print_max parameter).")
+                    break
+
+
+
+    #################
+    #  Str to List  #
+    #################
+    def __str_to_list(self, string):
+
+        '''
+
+        Include the input string into a list, if not already a list,
+        and return it.
+
+        Argument
+        ========
+            string: either a list, or an actual string
+
+        '''
+
+        # Add the string in a list if necessary
+        if isinstance(string, str):
+            string = [string]
+
+        # Return the list
+        return string
 
 
     #########################
@@ -457,6 +546,7 @@ class data( object ):
         return op_found[0]
 
 
+
     ##################
     #  Clean Spaces  #
     ##################
@@ -554,6 +644,7 @@ class data( object ):
 
         # Return whether sides exist
         return dont_exist
+
 
 
     ##################
