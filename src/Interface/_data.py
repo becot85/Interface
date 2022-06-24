@@ -326,9 +326,16 @@ class data( object ):
             quantity_list = self.__str_to_list(quantity_list)
             len_quantity_list = len(quantity_list)
 
+            # Plan spacing if entrise are to be listed without space in between
+            if len_quantity_list == 1:
+                print()
+
             # For each entry ..
             for i_entry in range(nb_q):
-                print()
+
+                # Add spacing in between entries if needed
+                if len_quantity_list > 1:
+                    print()
 
                 # Print quantities with their label
                 for i_q in range(len_quantity_list):
