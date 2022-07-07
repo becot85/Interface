@@ -222,7 +222,6 @@ class data( object ):
                                         new_data[key][-1].append(self.data[key][i_entry][i_b])
 
         # Create and return the filtered data object
-        new_data["break"] = 0.1
         return data(data=new_data)
 
 
