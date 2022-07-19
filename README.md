@@ -4,6 +4,9 @@
 
 Package designed to easily interface with data files of arbitrary formats. As long as the file structure is repetitive and predictible, it should be possible to use Interface to read, parse, and re-structure the data.
 
+#### *Currently under development*
+*.. Documentation is coming soon ..*
+
 ### Requirements
 * Python 3
 * NumPy
