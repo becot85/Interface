@@ -1,0 +1,9 @@
+i_entry: 0
+label: str, phrase #1
+value1: float, 1.42
+value2: str, aa
+
+i_entry: -1
+label: str, phrase #2
+value1: float, -1e39
+value2: str, bb

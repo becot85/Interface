@@ -1,0 +1,35 @@
+i_entry: 0
+label: int, 1
+comp1: str, n
+comp2: str, p
+comp3: str, 
+comp4: str, 
+comp5: str,   
+comp6: str,
+comment: str, wc12w
+q_value: float, 7.82300e-01
+a0: float, -6.781610e+00
+a1: float, 0.000000e+00
+a2: float, 0.000000e+00
+a3: float, 0.000000e+00
+a4: float, 0.000000e+00
+a5: float, 0.000000e+00
+a6: float, 0.000000e+00
+
+i_entry: -1
+label: int, 1
+comp1: str, he3
+comp2: str, t
+comp3: str,
+comp4: str,
+comp5: str,
+comp6: str,
+comment: str, ecw
+q_value: float, -1.90000e-02
+a0: float, -3.246200e+01
+a1: float, -2.133800e-01
+a2: float, -8.215810e-01
+a3: float, 1.112410e+01
+a4: float, -5.773380e-01
+a5: float, 2.904710e-02
+a6: float, -2.627050e-01

@@ -1,0 +1,9 @@
+i_entry: 0
+element: str, H
+Z: int, 1
+value: float, 0.001
+
+i_entry: -1
+element: str, Li
+Z: int, 3
+value: float, 0.003

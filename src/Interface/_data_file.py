@@ -5,6 +5,9 @@
 
 '''
 
+# Import Interface toolkit
+from . import interface_utils as utils
+
 # Declare the class
 class data_file( object ):
 
@@ -77,7 +80,7 @@ class data_file( object ):
             line = lines[i_line]
 
             # Start a new bloc line if needed
-            if self.__line_is_empty(line) and not line == lines[-1]:
+            if self._line_is_empty(line) and not line == lines[-1]:
                 bloc[-1]["lines"].append(dict())
                 post = ""
             else:
@@ -93,7 +96,7 @@ class data_file( object ):
 
                     # Collect the header flag (if provided)
                     if quantity[0] == "$":
-                        structure = self._remove_initial_spaces(l_split[1])
+                        structure = utils.remove_initial_spaces(l_split[1])
 
                     # Collect the type and location of the quantity within the file
                     else:
@@ -129,7 +132,7 @@ class data_file( object ):
         i_line = self.__skip_empty_lines(0, lines, nb_lines)
 
         # For each header line in the input file ..
-        line = self._remove_initial_spaces(lines[i_line])
+        line = utils.remove_initial_spaces(lines[i_line])
         while line[0] == "$":
 
             # Split the line
@@ -147,9 +150,9 @@ class data_file( object ):
             if flag == "IGNORE":
                 if not flag in header.keys():
                     header[flag] = []
-                header[flag].append(self._remove_initial_spaces(l_split[1]))
+                header[flag].append(utils.remove_initial_spaces(l_split[1]))
             else:
-                header[flag] = self._remove_initial_spaces(l_split[1])
+                header[flag] = utils.remove_initial_spaces(l_split[1])
 
             # Print warning message if the header is treated by the code
             if not flag in self.__valid_headers:
@@ -157,9 +160,9 @@ class data_file( object ):
 
             # Change line
             i_line += 1
-            if self.__line_is_empty(lines[i_line]):
+            if self._line_is_empty(lines[i_line]):
                 break
-            line = self._remove_initial_spaces(lines[i_line])
+            line = utils.remove_initial_spaces(lines[i_line])
 
         # Return the header dictionary
         return i_line, header
@@ -219,7 +222,7 @@ class data_file( object ):
         '''
 
         # While the current line is empty ..
-        while self.__line_is_empty(lines[i_line]):
+        while self._line_is_empty(lines[i_line]):
 
             # Go to the next line
             i_line += 1
@@ -235,7 +238,7 @@ class data_file( object ):
     ###################
     #  Line is empty  #
     ###################
-    def __line_is_empty(self, line):
+    def _line_is_empty(self, line):
 
         '''
 
@@ -266,37 +269,6 @@ class data_file( object ):
             return False
 
 
-    ###########################
-    #  Remove initial spaces  #
-    ###########################
-    def _remove_initial_spaces(self, string):
-
-        '''
-
-        Take a string, and return the same string, but without empty
-        spaces at the begining (e.g. "  the text " --> "the text ")
-
-        Argument
-        ========
-            string (str): string for which spaces need to be removed
-
-        '''
-
-        # Return the same if the string is empty
-        if len(string) == 0:
-            return string
-
-        # Find the first instance of a non-space character
-        i_start = 0
-        while string[i_start] == " ":
-            i_start += 1
-            if i_start == len(string):
-                break
-
-        # Return the cleaned string
-        return string[i_start:]
-
-
     ######################
     #  Format structure  #
     ######################
@@ -317,7 +289,7 @@ class data_file( object ):
         s_split = structure.split(",")
 
         # Get the type of the quantity
-        q_type = self.__return_type(s_split[0])
+        q_type = self._return_type(s_split[0])
 
         # Return only the type if no location is given
         if len(s_split) == 1:
@@ -348,7 +320,7 @@ class data_file( object ):
         if len(s_split) == 2:
             return (q_type, q_location)
         elif len(s_split) == 3:
-            return (q_type, q_location, self._remove_initial_spaces(s_split[2]))
+            return (q_type, q_location, utils.remove_initial_spaces(s_split[2]))
         else:
             return None
 
@@ -356,7 +328,7 @@ class data_file( object ):
     #################
     #  Return type  #
     #################
-    def __return_type(self, str_type):
+    def _return_type(self, str_type):
 
         '''
 
@@ -369,14 +341,14 @@ class data_file( object ):
         '''
 
         # Return int
-        if "int" in str_type: # to exclude extra spaces
+        if utils.remove_extra_spaces(str_type) == "int":
             return int
 
         # Return string
-        if "str" in str_type: # to exclude extra spaces
+        if utils.remove_extra_spaces(str_type) == "str":
             return str
 
         # Return float
-        if "float" in str_type: # to exclude extra spaces
+        if utils.remove_extra_spaces(str_type) == "float":
             return float
 

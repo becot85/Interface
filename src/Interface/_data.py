@@ -8,6 +8,9 @@
 # Import Python packages
 import numpy as np
 
+# Import Interface toolkit
+from . import interface_utils as utils
+
 
 # Declare the class
 class data( object ):
@@ -397,7 +400,7 @@ class data( object ):
         for c in condition_list:
 
             # Clean and remove extra spaces
-            condition = self.__clean_spaces(c)
+            condition = utils.remove_extra_spaces(c)
 
             # Find the operator that will split the left and right sides
             operator = self.__get_operator(condition)
@@ -436,9 +439,9 @@ class data( object ):
 
                 # Fill the list if everything is ok
                 else:
-                    left_list.append(self.__clean_spaces(split[0]))
+                    left_list.append(utils.remove_extra_spaces(split[0]))
                     operator_list.append(operator)
-                    right_list.append(self.__clean_spaces(split[1]))
+                    right_list.append(utils.remove_extra_spaces(split[1]))
 
         # Return None if there was a problem
         if None in left_list:
@@ -553,55 +556,6 @@ class data( object ):
         return op_found[0]
 
 
-
-    ##################
-    #  Clean Spaces  #
-    ##################
-    def __clean_spaces(self, string):
-
-        '''
-
-        Take a string and remove extra spaces from it.
-
-        Argument
-        ========
-            string (str): string that may include extra spaces
-
-        '''
-
-        # Return nothing if the string is empty
-        if string == "":
-             return string
-
-        # Declare the cleaned string
-        len_string = len(string)
-        string_new = ""
-
-        # Skip the initial spaces
-        i_start = 0
-        while string[i_start] == " ":
-            i_start += 1
-            if i_start == len_string:
-                return ""
-
-        # Add the first character to the cleaned string
-        string_new += string[i_start]
-
-        # For each remaining character in the string ..
-        for i_char in range(i_start+1, len_string):
-
-            # Only add the character if it is not a double space
-            if not (string[i_char] == " " and string[i_char-1] == " "):
-                string_new += string[i_char]
-
-        # Return the cleaned string
-        if string_new[-1] == " ":
-            return string_new[:-1]
-        else:
-            return string_new
-
-
-
     #######################
     #  Sides Don't Exist  #
     #######################
@@ -686,7 +640,7 @@ class data( object ):
 
             # Add the targeted operator each time it appears by its own
             for i in range(max(0, nb_op-nb_exclude)):
-                op_found.append(self.__clean_spaces(op))
+                op_found.append(utils.remove_extra_spaces(op))
 
         # Return the updated list of found operators
         return op_found

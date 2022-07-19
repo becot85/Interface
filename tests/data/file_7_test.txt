@@ -1,0 +1,16 @@
+i_entry: 0
+common: float, [1.1, 2.2, 3.3, 4.4, -1e10]
+a: int, [6, 6]
+z: int, [3, 3]
+T9: float, [0.010, 0.011]
+rho: float, [1.000, 2]
+r2: float, [-100, -100]
+
+i_entry: -1
+common: float, [1.1, 2.2, 3.3, 4.4, -1.0e10]
+a: int, [52, 52]
+z: int, [26, 26]
+T9: float, [1.5, 1.504]
+rho: float, [3, -4.00]
+r1: float, [-4.847, -4.233]
+r2: float, [-5.494, -5.353]

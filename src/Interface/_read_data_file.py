@@ -7,10 +7,14 @@
 
 # Standard Python modules
 import copy
+import numpy as np
 
 # Data object to collect the data dictionary resulting from reading
 from . import data as dd
 from . import data_file
+
+# Interface toolkit
+from . import interface_utils as utils
 
 # Declare the class
 class read_data_file( data_file.data_file ):
@@ -44,18 +48,19 @@ class read_data_file( data_file.data_file ):
     ###############
     #  Read file  #
     ###############
-    def read_file(self, file_path, structure_path, ignore_lines=[]):
+    def read_file(self, file_path, structure_path, test_path="", ignore_lines=[]):
 
         '''
 
         Extract quantities from all lines in the input file, and
         store them into a list of dictionaries, where each index 
-        is one specific file entry
+        is one specific file entry.
 
         Arguments
         =========
             file_path (str): path to the input data file
             structure_path (str): path to the structure file (how to read data file)
+            test_path (str): path to the test file to make sure reading was ok
             ignore_lines (list of int): line indexes to be ignored
 
         '''
@@ -126,7 +131,7 @@ class read_data_file( data_file.data_file ):
                                     entries[-1].append(dict())
 
                                     # Loop over a given number of lines (if nb of lines provided) ..
-                                    if self.__remove_all_spaces(structure["$MULTILINE"]).isdigit():
+                                    if utils.remove_all_spaces(structure["$MULTILINE"]).isdigit():
                                         loop_end = int(structure["$MULTILINE"])
                                         for i_loop in range(loop_end):
 
@@ -196,8 +201,11 @@ class read_data_file( data_file.data_file ):
         # Create a data object
         data = self.__transpose_dictionary(entries, quantities, quantities_type)
 
-        # Return the data object
-        return data
+        # Return the data object (if everything went well)
+        if self.__reading_validated(data, test_path):
+            return data
+        else:
+            return dd.data(dict())
 
 
     #################
@@ -209,7 +217,7 @@ class read_data_file( data_file.data_file ):
         '''
 
         Increment the line index within the data extraction process,
-        taking into account lines that should be ignored
+        taking into account lines that should be ignored.
 
         Arguments
         =========
@@ -253,7 +261,7 @@ class read_data_file( data_file.data_file ):
         '''
 
         Find the line index where the reading process should start within the 
-        input data file
+        input data file.
 
         Arguments
         =========
@@ -298,7 +306,7 @@ class read_data_file( data_file.data_file ):
         '''
 
         Take an input dictionary, and remove any structure headerfrom
-        its list of keys
+        its list of keys.
 
         Argument
         ========
@@ -328,7 +336,7 @@ class read_data_file( data_file.data_file ):
         '''
 
         Define whether a given line in the input file should be 
-        ignored, based on the header provided with the structure file
+        ignored, based on the header provided with the structure file.
 
         Arguments
         =========
@@ -361,7 +369,7 @@ class read_data_file( data_file.data_file ):
         '''
 
         Find the number of time a given sub_block should be repeated
-        in order to gather the quantities of a file entry
+        in order to gather the quantities of a file entry.
 
         Arguments
         =========
@@ -401,7 +409,7 @@ class read_data_file( data_file.data_file ):
         '''
 
         Take a line (single string), extract the quantities following
-        a given split structure, and return the quantities in a dictionary
+        a given split structure, and return the quantities in a dictionary.
 
         Arguments
         =========
@@ -464,7 +472,7 @@ class read_data_file( data_file.data_file ):
 
         '''
 
-        Split a line following a given instruction
+        Split a line following a given instruction.
 
         Arguments
         =========
@@ -525,7 +533,7 @@ class read_data_file( data_file.data_file ):
 
         '''
 
-        Remove extra spaces from all strings in the entries dictionary
+        Remove extra spaces from all strings in the entries dictionary.
 
         '''
 
@@ -541,77 +549,11 @@ class read_data_file( data_file.data_file ):
                     # Remove extra space if it is a string
                     if type(entries[i_entry][i_dct][quantity]) == str:
                         entries[i_entry][i_dct][quantity] = \
-                            self.__remove_extra_spaces(\
+                            utils.remove_extra_spaces(\
                                 entries[i_entry][i_dct][quantity])
 
         # Return the cleaned dictionaries
         return entries
-
-
-    #########################
-    #  Remove extra spaces  #
-    #########################
-    def __remove_extra_spaces(self, string):
-
-        '''
-
-        Remove extra spaces of a given string
-
-        Arguments
-        =========
-            string: single input string
-
-        '''
-
-        # Remove extra spaces at the begining
-        string = self._remove_initial_spaces(string)
-        len_string = len(string)
-
-        # Cases where no more operation is needed
-        if len_string == 0 or len_string == 1:
-            return string
-
-        # Declare the string that will replace the input string
-        new_str = ""
-
-        # Scan through each character, and skip extra spaces
-        for i_c in range(0, len_string):
-            if not (string[i_c] == " " and string[i_c-1] == " "):
-                new_str += string[i_c]
-
-        # Remove the last space if any
-        if new_str[-1] == " ":
-            new_str = new_str[:-1]
-
-        # Return the new string the input string
-        return self._remove_initial_spaces(new_str)
-
-
-    #######################
-    #  Remove all spaces  #
-    #######################
-    def __remove_all_spaces(self, string):
-
-        '''
-
-        Remove all spaces of a given string.
-
-        Argument
-        ========
-            string: single input string
-
-        '''
-
-        # Declare the string that will have no space
-        new_str = ""
-
-        # Scan through the string and remove spaces
-        for char in string:
-            if not char == " ":
-                new_str += char
-
-        # Return the new string without space
-        return new_str
 
 
     ########################
@@ -623,7 +565,7 @@ class read_data_file( data_file.data_file ):
 
         Take each entry of a read file, and combine all dictionaries
         (originating from different file lines within an entry) in
-        order to only have one single dictionary per entry
+        order to only have one single dictionary per entry.
 
         '''
 
@@ -686,7 +628,7 @@ class read_data_file( data_file.data_file ):
 
         Take the combined dictionaries (entries) and convert them
         in a way that each quantity has an array corresponding to the
-        full list of entries
+        full list of entries.
 
         Arguments
         =========
@@ -726,4 +668,194 @@ class read_data_file( data_file.data_file ):
 
         # Create a data instance
         return dd.data(data)
+
+
+    #######################
+    #  Reading Validated  #
+    #######################
+    def __reading_validated(self, data, test_path):
+
+        '''
+
+        Compare some of the data read using Interface with the expected data
+        from specific entries provided within the test file. The function 
+        returns False if an inconclusive test was conducted. Returns True
+        if the test was conclusive, or if no test could be performed.
+
+        Arguments
+        =========
+            data (Data Interface object): data read from the input file
+            test_path (str): path to the test file to make sure reading was ok
+
+        '''
+
+        # Make sure a test file is provided
+        if isinstance(test_path, str):
+            if test_path == "":
+                return True
+        else:
+            print("Error - 'test_path' variable should be a string.")
+            print("      - No test performed.")
+            return True
+
+        # Build the list of dictionaries containing expected quantities
+        d_list = self.__build_test_case(test_path)
+        if d_list == None:
+            return True
+
+        # For each tested entries ..
+        for d in d_list:
+            i_entry = d["i_entry"]
+
+            # For each quantity in the test case ..
+            for quantity, value in d.items():
+                if not quantity == "i_entry":
+
+                    # Copy (reformat if needed) read data
+                    if isinstance(data.data[quantity][i_entry], np.ndarray):
+                        read_value = list(data.data[quantity][i_entry])
+                    else:
+                        read_value = data.data[quantity][i_entry]
+
+                    # Error message if the comparison failed ..
+                    if not read_value == value:
+                        print("Error - Test failed. Please revisit structure file.")
+                        print("      - i_entry:", i_entry)
+                        print("      - quantity:", quantity)
+                        print("      - expected:", value)
+                        print("      - read:", read_value)
+                        return False
+
+        # Print notice of success if all tests passed
+        print("Reading test successful.")
+        return True
+
+
+    #####################
+    #  Build Test Case  #
+    #####################
+    def __build_test_case(self, test_path):
+
+        '''
+
+        Read a reading test file and build a list of dictionaries representing
+        the expected quantities of specific data entries.
+
+        Argument
+        ========
+            test_path (str): path to the test file to make sure reading was ok
+
+        '''
+
+        # Declare the list of expected quantities (dictionaries)
+        d_list = []
+
+        # Read test file
+        lines = self._read_lines(test_path)
+
+        # Try to build the test case
+        #
+        #
+        #
+        #
+        #
+        if True:
+
+            # For each line in the test file ..
+            for line in lines:
+
+                # If there is something in that line ..
+                if not self._line_is_empty(line):
+
+                    # Split line
+                    quantity, value = self.__split_test_line(line)
+                    if quantity == None:
+                        return None
+
+                    # Create new entry
+                    if quantity == "i_entry":
+                        d_list.append({"i_entry": int(value)})
+
+                    # Collect expected quantities
+                    d_list[-1][quantity] = value
+
+        # Send warning if test case could not be built
+        else:
+            print("Error - Test file not formated correctly.")
+            print("      - No test performed.")
+            return None
+
+        # Return the test case
+        return d_list
+
+
+    #####################
+    #  Split Test Line  #
+    #####################
+    def __split_test_line(self, line):
+
+        '''
+
+        From a line taken from the test file, extract quantities and format 
+        them according to the requested type.
+
+        Argument
+        ========
+            line (str): line extracted from the test file
+
+        '''
+
+        # Extract quantity label
+        split = line.split(":")
+        quantity = split[0]
+        split_value = split[1]
+
+        # Return entry info if this is an entry index
+        if quantity == "i_entry":
+            return quantity, int(split_value)
+
+        # Find the string index of the first instance of ","
+        # Do not use split(",") since value can include ","
+        if "," in split_value:
+            i_split = 0
+            while not split_value[i_split] == ",":
+                i_split += 1
+
+        # Print error if no comma were found
+        else:
+            print("Error - File test format issue.")
+            print("      - No ',' found in the line '"+line+"'.")
+            print("      - No test performed.")
+            return None, None
+
+        # Extract value type and value
+        v_type = split_value[:i_split].replace(" ","")
+        v_type = self._return_type(v_type)
+        value = split_value[i_split+1:]
+        value = utils.remove_initial_spaces(value)
+
+        # If the expected value is a list ..
+        if len(value) > 0:
+            if value[0] == "[":
+
+                # Return nothing if the list has no end ..
+                value = value.replace(" ","")
+                if not value[-1] == "]":
+                    return None
+
+                # Extract raw items from the list
+                value_list_str = value[1:-1].split(",")
+
+                # Create list of expected values
+                value_list = []
+                for v in value_list_str:
+                    value_list.append(v_type(v))
+
+                # Return the split test line
+                return quantity, value_list
+
+        # Return the expected value if not a list ..
+        return quantity, v_type(utils.remove_extra_spaces(value))
+
+            
 

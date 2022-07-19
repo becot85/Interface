@@ -21,7 +21,12 @@ class TestReading:
     def test_file_1(self):
 
         # Read data file
-        d = self.rdf.read_file("file_1.txt", "file_1_structure.txt")
+        d = self.rdf.read_file("file_1.txt", \
+                "file_1_structure.txt", test_path="file_1_test.txt")
+
+        # Test the number of entries
+        assert d.nb_entries == 3
+        assert d.nb_quantities == 3
 
         # Compare read data against raw data
         assert d.data["element"][0] == "H"
@@ -34,17 +39,18 @@ class TestReading:
         assert d.data["value"][1] == 0.002
         assert d.data["value"][2] == 0.003
 
-        # Test the number of entries
-        assert d.nb_entries == 3
-        assert d.nb_quantities == 3
-
 
     # Test file #2
     # ============
     def test_file_2(self):
 
         # Read data file
-        d = self.rdf.read_file("file_2.txt", "file_2_structure.txt")
+        d = self.rdf.read_file("file_2.txt", \
+                "file_2_structure.txt", test_path="file_2_test.txt")
+
+        # Test the number of entries and quantities
+        assert d.nb_entries == 2
+        assert d.nb_quantities == 3
 
         # Compare read data against raw data
         assert d.data["label"][0] == "phrase #1"
@@ -54,17 +60,17 @@ class TestReading:
         assert d.data["value2"][0] == "aa"
         assert d.data["value2"][1] == "bb"
 
-        # Test the number of entries and quantities
-        assert d.nb_entries == 2
-        assert d.nb_quantities == 3
-
-
     # Test file #3
     # ============
     def test_file_3(self):
 
         # Read data file
-        d = self.rdf.read_file("file_3.txt", "file_3_structure.txt")
+        d = self.rdf.read_file("file_3.txt", \
+                "file_3_structure.txt", test_path="file_3_test.txt")
+
+        # Test the number of entries and quantities
+        assert d.nb_entries == 3
+        assert d.nb_quantities == 16
 
         # Compare read data against raw data
         assert d.data["comp1"][0] == "n"
@@ -110,17 +116,18 @@ class TestReading:
         assert d.data["a5"][2] == 2.904710e-02
         assert d.data["a6"][2] == -2.627050e-01
 
-        # Test the number of entries and quantities
-        assert d.nb_entries == 3
-        assert d.nb_quantities == 16
-
 
     # Test file #4
     # ============
     def test_file_4(self):
 
         # Read data file
-        d = self.rdf.read_file("file_4.txt", "file_4_structure.txt")
+        d = self.rdf.read_file("file_4.txt", 
+                "file_4_structure.txt", test_path="file_4_test.txt")
+
+        # Test the number of entries and quantities
+        assert d.nb_entries == 2
+        assert d.nb_quantities == 5
 
         # Compare read data against raw data
         assert d.data["id"][0] == 11
@@ -134,17 +141,18 @@ class TestReading:
         assert d.data["label3"][0] == "ok1"
         assert d.data["label3"][1] == "ok2"
 
-        # Test the number of entries and quantities
-        assert d.nb_entries == 2
-        assert d.nb_quantities == 5
-
 
     # Test file #5
     # ============
     def test_file_5(self):
 
         # Read data file
-        d = self.rdf.read_file("file_5.txt", "file_5_structure.txt")
+        d = self.rdf.read_file("file_5.txt", \
+                "file_5_structure.txt", test_path="file_5_test.txt")
+
+        # Test the number of entries and quantities
+        assert d.nb_entries == 2
+        assert d.nb_quantities == 7
 
         # Compare read data against raw data
         assert d.data["comp1"][0] == "p"
@@ -162,17 +170,18 @@ class TestReading:
         assert list(d.data["rate"][0]) == [0, 0, 1]
         assert list(d.data["rate"][1]) == [0.123E-09, 3.783E-09, 1.543E-09]
 
-        # Test the number of entries and quantities
-        assert d.nb_entries == 2
-        assert d.nb_quantities == 7
-
 
     # Test file #6
     # ============
     def test_file_6(self):
 
         # Read data file
-        d = self.rdf.read_file("file_6.txt", "file_6_structure.txt")
+        d = self.rdf.read_file("file_6.txt", \
+                "file_6_structure.txt", test_path="file_6_test.txt")
+
+        # Test the number of entries and quantities
+        assert d.nb_entries == 3
+        assert d.nb_quantities == 3
 
         # Compare read data against raw data
         assert d.data["label"][0] == "the line #1"
@@ -185,17 +194,18 @@ class TestReading:
         assert list(d.data["value2"][1]) == ["ee", "ff"]
         assert list(d.data["value2"][2]) == ["gg"]
 
-        # Test the number of entries and quantities
-        assert d.nb_entries == 3
-        assert d.nb_quantities == 3
-
 
     # Test file #7
     # ============
     def test_file_7(self):
 
         # Read data file
-        d = self.rdf.read_file("file_7.txt", "file_7_structure.txt")
+        d = self.rdf.read_file("file_7.txt", \
+                "file_7_structure.txt", test_path="file_7_test.txt")
+
+        # Test the number of entries and quantities
+        assert d.nb_entries == 4
+        assert d.nb_quantities == 7
 
         # Compare read data against raw data
         assert list(d.data["common"][0]) == [1.1, 2.2, 3.3, 4.4, -1e10]
@@ -226,8 +236,4 @@ class TestReading:
         assert list(d.data["r2"][1]) == [-59.098, -54.914]
         assert list(d.data["r2"][2]) == [-100.000, -100.000]
         assert list(d.data["r2"][3]) == [-5.494, -5.353]
-
-        # Test the number of entries and quantities
-        assert d.nb_entries == 4
-        assert d.nb_quantities == 7
 

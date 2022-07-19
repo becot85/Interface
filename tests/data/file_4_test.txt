@@ -1,0 +1,13 @@
+i_entry: 0
+id: int, 11
+label1: str, multicolumn
+label2: float, 1.1
+list: str, [a, b, c, d]
+label3: str, ok1
+
+i_entry: -1
+id: int, 22
+label1: str, Multicolumn
+label2: float, 2.2
+list: str, [e, f, g,   h]
+label3: str, ok2

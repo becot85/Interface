@@ -1,0 +1,17 @@
+i_entry: 0
+comp1: str, p
+comp2: str, gd134
+comp3: str, tb135
+comment: str, aaaa
+q_value: float, -1.18800E+00
+T9: float, [1.00E-03, 2.00E-03, 3.00E-03]
+rate: float, [0.000E+00, 0.000E+00, 1.000E+00]
+
+i_entry: -1
+comp1: str, t
+comp2: str, he3
+comp3: str, 
+comment: str, bbbbb
+q_value: float, 1.85910e-02
+T9: float, [1.10E-03, 2.20E-03, 3.30E-03]
+rate: float, [0.123E-09, 3.783E-09, 1.543E-09]
