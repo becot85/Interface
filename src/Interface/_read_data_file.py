@@ -754,12 +754,7 @@ class read_data_file( data_file.data_file ):
         lines = self._read_lines(test_path)
 
         # Try to build the test case
-        #
-        #
-        #
-        #
-        #
-        if True:
+        try:
 
             # For each line in the test file ..
             for line in lines:
@@ -780,7 +775,7 @@ class read_data_file( data_file.data_file ):
                     d_list[-1][quantity] = value
 
         # Send warning if test case could not be built
-        else:
+        except:
             print("Error - Test file not formated correctly.")
             print("      - No test performed.")
             return None
