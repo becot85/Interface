@@ -5,6 +5,9 @@
 
 '''
 
+# Import Python packages
+import copy
+
 # Import Interface toolkit
 from . import interface_utils as utils
 
@@ -62,8 +65,7 @@ class data_file( object ):
         '''
 
         # Collect the lines of the structure file
-        lines = self._read_lines(structure_path)
-        nb_lines = len(lines)
+        lines, nb_lines = self._read_lines(structure_path)
 
         # Read structure file header (identified with  the $ symbol)
         i_start, header = self.__read_header(lines, nb_lines)
@@ -106,7 +108,7 @@ class data_file( object ):
                     bloc[-1]["lines"][-1][quantity] = structure
 
         # Return the reading instructions
-        return bloc, header
+        return bloc, header, list(header.keys())
 
 
     #################
@@ -200,7 +202,7 @@ class data_file( object ):
         f.close()
 
         # Return the list of individual lines
-        return lines
+        return lines, len(lines)
 
 
     ######################
@@ -351,4 +353,35 @@ class data_file( object ):
         # Return float
         if utils.remove_extra_spaces(str_type) == "float":
             return float
+
+
+    ##################
+    #  Remove flags  #
+    ##################
+    def _remove_flags(self, dic):
+
+        '''
+
+        Take an input dictionary, and remove any structure header from
+        its list of keys.
+
+        Argument
+        ========
+            dic (dictionary): Input dictionary with potential structure header
+
+        '''
+
+        # Declare the new dictionary with no header
+        new_dic = dict()
+
+        # For each key in the input dictionary ..
+        for key in dic.keys():
+
+            # Add it to the new dictionary if the key is not a header
+            if not key[0] == "$":
+                new_dic[key] = copy.deepcopy(dic[key])
+
+        # Return the new dictionary
+        return new_dic
+
 

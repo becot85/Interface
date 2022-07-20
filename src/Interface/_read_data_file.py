@@ -16,7 +16,10 @@ from . import data_file
 # Interface toolkit
 from . import interface_utils as utils
 
-# Declare the class
+
+#######################
+#  Declare the class  #
+#######################
 class read_data_file( data_file.data_file ):
 
     '''
@@ -65,22 +68,11 @@ class read_data_file( data_file.data_file ):
 
         '''
 
-        # Read the instructions on how to read the data file
-        bloc, header = self._create_bloc_structure(structure_path)
-        header_keys = list(header.keys())
+        # Initialize reading process
+        i_line, line = self.__init_reading(file_path, structure_path, ignore_lines)
 
-        # Read all the lines of the input file
-        lines = self._read_lines(file_path)
-        nb_lines = len(lines)
-
-        # Declare the list of entries
+        # Declare list of entries and structures that have been applied
         entries = []
-
-        # Initialize the line index
-        i_line = self.__get_start_line_index(lines, nb_lines, header, header_keys, ignore_lines)
-        line = lines[i_line]
-
-        # List to keep track of structures that have been applied
         read_structure = []
 
         # While the file is not read completely ..
@@ -91,7 +83,7 @@ class read_data_file( data_file.data_file ):
             entries.append([])
 
             # For each sub-bloc within the main bloc ..
-            for sub_bloc in bloc:
+            for sub_bloc in self.__bloc:
 
                 # Find the number of time this sub-bloc should be
                 # repeated to gather the quantities of a file entry
@@ -101,237 +93,363 @@ class read_data_file( data_file.data_file ):
                     # For each line of the sub-bloc ..
                     for structure in sub_bloc["lines"]:
 
-                        # If this is not the first time the structure is applied
-                        skip = False
-                        if structure in read_structure:
+                        # Pre-screen the structure content to gain insights on how to proceed
+                        skip, structure, read_structure, multiline, ml_is_digit, ml_end_point = \
+                                self.__screen_structure(structure, read_structure)
 
-                            # Skip if the bloc should be only read once
-                            if "$ONCE" in list(structure.keys())[0]:
-                                skip = True
-
-                        # If this is the first time the structure is applied ..
-                        else:
-
-                            # Add it to the list of treated structures
-                            read_structure.append(structure)
-
-                        # If this structure should not be ignored ..
+                        # If there is something to collect on this line ..
                         if not skip:
-
-                            # If there is something to collect on this line ..
                             if not structure == None:
 
                                 # If the quantities cover several lines ..
-                                if "$MULTILINE" in structure:
+                                if multiline:
 
-                                    # Make a copy of the structure without flags
-                                    structure_no_flag = self.__remove_flags(structure)
-
-                                    # Declare the entry dictionary if needed
-                                    entries[-1].append(dict())
-
-                                    # Loop over a given number of lines (if nb of lines provided) ..
-                                    if utils.remove_all_spaces(structure["$MULTILINE"]).isdigit():
-                                        loop_end = int(structure["$MULTILINE"])
-                                        for i_loop in range(loop_end):
-
-                                            # Collect the quantities on the line
-                                            quantities = self.__get_quantities(\
-                                                line, structure_no_flag, split_character=None)
-
-                                            # For each quantity ..
-                                            for quantity in quantities:
-
-                                                # Add the quantity to the array
-                                                if not quantity in entries[-1][-1].keys():
-                                                    entries[-1][-1][quantity] = []
-                                                entries[-1][-1][quantity].append(quantities[quantity])
-
-                                            # Go to the next line .. if needed
-                                            if not i_loop == (loop_end - 1):
-                                                i_line = self.__update_line(\
-                                                    i_line, lines, nb_lines, ignore_lines, header, header_keys)
-                                                line = lines[i_line]
-
-                                    # Loop over until the end flag is found ..
-                                    else:
-                                        while not structure["$MULTILINE"] in line:
-
-                                            # Collect the quantities on the line
-                                            quantities = self.__get_quantities(\
-                                                line, structure_no_flag, split_character=None)
-
-                                            # For each quantity ..
-                                            for quantity in quantities:
-
-                                                # Add the quantity to the array
-                                                if not quantity in entries[-1][-1].keys():
-                                                    entries[-1][-1][quantity] = []
-                                                entries[-1][-1][quantity].append(quantities[quantity])
-
-                                            # Go to the next line
-                                            if i_line == (nb_lines - 1):
-                                                break
-                                            else:
-                                                i_line = self.__update_line(\
-                                                    i_line, lines, nb_lines, ignore_lines, header, header_keys, \
-                                                        stop=structure["$MULTILINE"])
-                                                line = lines[i_line]
+                                    # Collect all the quantities listed on these lines
+                                    i_line, line, entries = self.__extract_ml_quantities(\
+                                        i_line, line, structure, entries, ml_is_digit, ml_end_point)
 
                                 # If the quantities are not listed over several lines ..
                                 else:
+
                                     # Add the quantity directly to the dictionary
                                     entries[-1].append(self.__get_quantities(\
                                             line, structure, split_character=None))
 
                             # Update the targetted line
-                            i_line = self.__update_line(\
-                                i_line, lines, nb_lines, ignore_lines, header, header_keys)
-                            if i_line == nb_lines:
+                            i_line, line = self.__update_line(i_line)
+                            if i_line == self.__nb_lines:
                                 ongoing = False
                                 break
-                            line = lines[i_line]
 
-        # Get rid of extra spaces
-        entries = self.__clean_strings(entries)
+        # Delete temporary variables that aimed to assist this read_file function
+        self.__delete_temp_variables()
 
-        # Combine the dictionaries if each entry into one single dictionary
-        entries, quantities, quantities_type = self.__clean_dictionaries(entries)
+        # Generate and return the Data Interface object (if everything went well)
+        return self.__generate_DI(entries, test_path)
 
-        # Create a data object
-        data = self.__transpose_dictionary(entries, quantities, quantities_type)
 
-        # Return the data object (if everything went well)
-        if self.__reading_validated(data, test_path):
-            return data
+    ##################
+    #  Init reading  #
+    ##################
+    def __init_reading(self, file_path, structure_path, ignore_lines):
+
+        '''
+
+        Declare and initialize variables for the reading process.
+
+        Arguments
+        =========
+            file_path (str): path to the input data file
+            structure_path (str): path to the structure file (how to read data file)
+            test_path (str): path to the test file to make sure reading was ok
+            ignore_lines (list of int): line indexes to be ignored
+
+        '''
+
+        # Read the instructions on how to read the data file
+        bloc, header, header_keys = self._create_bloc_structure(structure_path)
+
+        # Read all the lines of the input file
+        lines, nb_lines = self._read_lines(file_path)
+
+        # Temporarily assign self to recurent variables
+        self.__bloc = bloc
+        self.__header = header
+        self.__header_keys = header_keys
+        self.__ignore_lines = ignore_lines
+        self.__lines = lines
+        self.__nb_lines = nb_lines
+
+        # Initialize the line index
+        i_line, line = self.__get_start_line_index()
+
+        # Return dynamic variables
+        return i_line, line
+
+
+    ###########################
+    #  Delete temp variables  #
+    ###########################
+    def __delete_temp_variables(self):
+
+        '''
+
+        Delete self.__ variables that were temporarily defined to assist
+        the reading process within the read_file function.
+
+        '''
+
+        # Delete variables
+        del self.__bloc
+        del self.__header
+        del self.__header_keys
+        del self.__ignore_lines
+        del self.__lines
+        del self.__nb_lines
+
+
+    ######################
+    #  Screen structure  #
+    ######################
+    def __screen_structure(self, structure, read_structure):
+
+        '''
+
+        Pre-screen the structure to gain insights on how to proceed
+        with the upcoming data extraction process.
+
+        Arguments
+        =========
+            structure (dict): one line of a structure sub-bloc
+            read_structure (list): list of already-covered structures
+
+        '''
+
+        # Check whether the upcoming reading should be skipped
+        skip, read_structure = self.__check_skip(structure, read_structure)
+
+        # If upcoming data is spread over multiple lines ..
+        if "$MULTILINE" in structure:
+
+            # Set multiline flag
+            multiline = True
+
+            # Set multiline variables if number of loops is provided 
+            if utils.remove_all_spaces(structure["$MULTILINE"]).isdigit():
+                ml_is_digit = True
+                ml_end_point = int(structure["$MULTILINE"])
+
+            # Set multiline variables if number of loops is dynamic 
+            else:
+                ml_is_digit = False
+                ml_end_point = utils.remove_initial_spaces(structure["$MULTILINE"])
+
+        # Set multiline flag to False if upcoming data is on one line
         else:
-            return dd.data(dict())
+            multiline = False
+            ml_is_digit = None
+            ml_end_point = None
+
+        # Remove header flags from structure dictionary
+        structure = self._remove_flags(structure)
+
+        # Return pre-screen result
+        return skip, structure, read_structure, multiline, ml_is_digit, ml_end_point
+
+
+    ################
+    #  Check skip  #
+    ################
+    def __check_skip(self, structure, read_structure):
+
+        '''
+
+        Keep track of the structures already covered and look
+        for the $ONCE header to make sure it is only convered
+        once throughout the reading.
+
+        Arguments
+        =========
+            structure (dict): one line of a structure sub-bloc
+            read_structure (list): list of already-covered structures
+
+
+        '''
+
+        # First assume that the upcoming structure should not be skipped
+        skip = False
+
+        # If this is not the first time the structure is applied
+        if structure in read_structure:
+
+            # Skip if the bloc should be only read once
+            if "$ONCE" in list(structure.keys())[0]:
+                skip = True
+
+        # If this is the first time the structure is applied ..
+        else:
+
+            # Add it to the list of treated structures
+            read_structure.append(structure)
+
+        # Return check result
+        return skip, read_structure
+
+
+    ###########################
+    #  Extract ML quantities  #
+    ###########################
+    def __extract_ml_quantities(self, i_line, line, structure, entries,\
+                                      ml_is_digit, ml_end_point):
+
+        '''
+
+        Extract all quantities involved in a $MULTILINE command and 
+        add them to the entries array.
+
+        Arguments
+        =========
+            i_line (int): current line index
+            line (str): current line
+            structure (dictionary): instructions on to extract quantities
+            entries: combined dictionaries (the content of the input file)
+            ml_is_digit (bool): True if the number of loops is provided
+            ml_end_point (str or int): Endpoint flag or number of loops 
+
+        '''
+
+        # Create an entry for the data dictionary
+        entries[-1].append(dict())
+
+        # If the number of multiline loops is provided ..
+        if ml_is_digit:
+
+            # Collect quantities over a fixed number of loops
+            for i_loop in range(ml_end_point):
+
+                # Collect the quantities on the line
+                entries = self.__extract_ml_line(line, structure, entries)
+
+                # Go to the next line if needed
+                if not i_loop == (ml_end_point - 1):
+                    i_line, line = self.__update_line(i_line)
+
+        # If the multiline loop is dynamic ..
+        else:
+
+            # Collect quantities until the end point is found ..
+            while not ml_end_point in line:
+
+                # Collect the quantities on the line
+                entries = self.__extract_ml_line(line, structure, entries)
+
+                # Go to the next line
+                if i_line == (self.__nb_lines - 1):
+                    break
+                else:
+                    i_line, line = self.__update_line(i_line, stop=ml_end_point)
+
+        # Return updated variables
+        return i_line, line, entries
+
+
+    #####################
+    #  Extract ML line  #
+    #####################
+    def __extract_ml_line(self, line, structure, entries):
+
+        '''
+
+        Extract quantities from a line and add them to the entries
+        array knowing that we are in the $MULTILINE mode and that
+        each item in the listare progressively being appended.
+
+        Arguments
+        =========
+            line (str): current line
+            structure (dictionary): instructions on to extract quantities
+            entries: combined dictionaries (the content of the input file)
+
+        '''
+
+        # Collect the quantities on the line
+        quantities = self.__get_quantities(line, structure)
+
+        # For each quantity ..
+        for quantity in quantities:
+
+            # Add the quantity to the array
+            if not quantity in entries[-1][-1].keys():
+                entries[-1][-1][quantity] = []
+            entries[-1][-1][quantity].append(quantities[quantity])
+
+        # Return the updated entries array
+        return entries
 
 
     #################
     #  Update line  #
     #################
-    def __update_line(self, i_line, lines, nb_lines, ignore_lines, header, \
-                      header_keys, stop=None):
+    def __update_line(self, i_line, stop=None):
 
         '''
 
         Increment the line index within the data extraction process,
-        taking into account lines that should be ignored.
+        taking into account lines that should be ignored. This also
+        returns the targetted line (or None if outside range).
 
         Arguments
         =========
             i_line (int): current line index
-            lines (list of string): list of lines read from the input data file
-            nb_lines (int): len(lines)
-            ignore_lines (list of int): line indexes to be ignored
-            header (dictionary): header of the input structure file
-            header_keys (list of string): dictionary keys of the header
             stop (string): Series of character found in a line that stops the update process
 
         '''
 
         # Increment the line index
         i_line += 1
-        if i_line >= nb_lines:
-            return nb_lines
+        if i_line >= self.__nb_lines:
+            return self.__nb_lines, None
 
         # Increment the line until this is a line to be treated
-        while i_line in ignore_lines or self.__should_ignore(lines[i_line], header, header_keys):
+        while i_line in self.__ignore_lines or self.__should_ignore(self.__lines[i_line]):
 
             # Stop if the line includes a flag that tell a multiline process to stop
             if not stop == None:
-                if stop in lines[i_line]:
+                if stop in self.__lines[i_line]:
                     break
 
             # Go to the next line
             i_line += 1
-            if i_line == nb_lines:
-                break
+
+            # Return if the index is going out of range
+            if i_line == self.__nb_lines:
+                return i_line, None
         
         # Return the new line index
-        return i_line
+        return i_line, self.__lines[i_line]
 
 
     ##########################
     #  Get start line index  #
     ##########################
-    def __get_start_line_index(self, lines, nb_lines, header, header_keys, ignore_lines):
+    def __get_start_line_index(self):
 
         '''
 
         Find the line index where the reading process should start within the 
         input data file.
 
-        Arguments
-        =========
-            lines (list of string): list of lines read from the input data file
-            nb_lines (int): len(lines)
-            header (dictionary): header of the input structure file
-            header_keys (list of string): dictionary keys of the header
-            ignore_lines (list of int): line indexes to be ignored
-
         '''
 
         # If there is a specific starting flag included in the structure header ..
-        if "START" in header_keys:
+        if "START" in self.__header_keys:
 
             # While the current line does include the flag ..
             i_line = 0
-            while not header["START"] in lines[i_line]:
+            while not self.__header["START"] in self.__lines[i_line]:
 
                 # Skip the line
                 i_line += 1
 
                 # Send an error if the starting point is not found
-                if i_line == nb_lines:
-                    print("Error - START flag "+header["START"]+" not found within the file.")
+                if i_line == self.__nb_lines:
+                    print("Error - START flag "+self.__header["START"]+" not found within the file.")
                     return None
 
         # If no starting flag is used ..
         else:
 
             # Get the first line index that is not ignored
-            i_line = self.__update_line(-1, lines, nb_lines, ignore_lines, header, header_keys)
+            i_line, line = self.__update_line(-1)
 
         # Return the starting line index
-        return i_line
-
-
-    ##################
-    #  Remove flags  #
-    ##################
-    def __remove_flags(self, dic):
-
-        '''
-
-        Take an input dictionary, and remove any structure headerfrom
-        its list of keys.
-
-        Argument
-        ========
-            dic (dictionary): Input dictionary with potential structure header
-
-        '''
-
-        # Declare the new dictionary with no header
-        new_dic = dict()
-
-        # For each key in the input dictionary ..
-        for key in dic.keys():
-
-            # Add it to the new dictionary if the key is not a header
-            if not key[0] == "$":
-                new_dic[key] = copy.deepcopy(dic[key])
-
-        # Return the new dictionary
-        return new_dic
+        return i_line, self.__lines[i_line]
 
 
     ###################
     #  Should ignore  #
     ###################
-    def __should_ignore(self, line, header, header_keys):
+    def __should_ignore(self, line):
 
         '''
 
@@ -341,17 +459,15 @@ class read_data_file( data_file.data_file ):
         Arguments
         =========
             line (str): current line
-            header (dictionary): list of general instructions from structure header
-            header_keys (list): flags found within the header
 
         '''
 
         # Return False if there is no "IGNORE" in the header
-        if not "IGNORE" in header_keys:
+        if not "IGNORE" in self.__header_keys:
             return False
 
         # For each set of characters that flags a line as a line to be ignored ..
-        for ign in header["IGNORE"]:
+        for ign in self.__header["IGNORE"]:
 
             # Return True if these character are found in the line
             if ign in line:
@@ -386,11 +502,11 @@ class read_data_file( data_file.data_file ):
         rp = sub_bloc["repeat"]
 
         # Return the number of repeats if directly provided
-        if type(rp) == int:
+        if isinstance(rp, int):
             return rp
 
         # If a variable is given ..
-        if type(rp) == str:
+        if isinstance(rp, str):
 
             # Find the variable setting the number of repeats
             for dct in entry:
@@ -556,6 +672,40 @@ class read_data_file( data_file.data_file ):
         return entries
 
 
+    #################
+    #  Generate DI  #
+    #################
+    def __generate_DI(self, entries, test_path):
+
+        '''
+
+        From a raw entries dictionary read from an ascii file, generate
+        and return a Data Interface object validated  with a test file
+        if provided.
+
+        Arguments
+        =========
+            entries: combined dictionaries (the content of the input file)
+            test_path (str): path to the test file to make sure reading was ok
+
+        '''
+
+        # Get rid of extra spaces
+        entries = self.__clean_strings(entries)
+
+        # Combine the dictionaries if each entry into one single dictionary
+        entries, quantities, quantities_type = self.__clean_dictionaries(entries)
+
+        # Create a data object
+        data = self.__transpose_dictionary(entries, quantities, quantities_type)
+
+        # Return the Interface Data object (if everything went well)
+        if self.__reading_validated(data, test_path):
+            return data
+        else:
+            return dd.data(dict())
+
+
     ########################
     #  Clean dictionaries  #
     ########################
@@ -566,6 +716,10 @@ class read_data_file( data_file.data_file ):
         Take each entry of a read file, and combine all dictionaries
         (originating from different file lines within an entry) in
         order to only have one single dictionary per entry.
+
+        Argument
+        ========
+            entries: combined dictionaries (the content of the input file)
 
         '''
 
@@ -671,7 +825,7 @@ class read_data_file( data_file.data_file ):
 
 
     #######################
-    #  Reading Validated  #
+    #  Reading validated  #
     #######################
     def __reading_validated(self, data, test_path):
 
@@ -732,7 +886,7 @@ class read_data_file( data_file.data_file ):
 
 
     #####################
-    #  Build Test Case  #
+    #  Build test case  #
     #####################
     def __build_test_case(self, test_path):
 
@@ -751,7 +905,7 @@ class read_data_file( data_file.data_file ):
         d_list = []
 
         # Read test file
-        lines = self._read_lines(test_path)
+        lines, nb_lines = self._read_lines(test_path)
 
         # Try to build the test case
         try:
@@ -785,7 +939,7 @@ class read_data_file( data_file.data_file ):
 
 
     #####################
-    #  Split Test Line  #
+    #  Split test line  #
     #####################
     def __split_test_line(self, line):
 
