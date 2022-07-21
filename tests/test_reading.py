@@ -1,9 +1,6 @@
 # Tests for the reading process
 # Created by: Benoit Cote (June, 2022)
 
-# Import Python modules
-import numpy  as np
-
 # Import Interface tools
 from Interface import read_data_file
 

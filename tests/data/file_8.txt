@@ -1,7 +1,7 @@
 test1 test2 test3
 HHH This should be ignored
 Adki bla hh
-label1   0.100445
+label1   0.1004    
 1 1
 2 2
 3 3
@@ -9,21 +9,21 @@ HHH This should be ignored
 4 4
 5 5
 AokE haaa
-label2   35.00
+label2   35.00       
 1 13
 2 24
 3 35
 4 47
 5 58
 Niak6^^ a
-label3   -9e-1
+label3   -9e-1       
 1 3
 2 4
 3 5
 4 7
 5 8
 ACBMD QFY
-label4   2.6
+label4   2.6         
 HHH This should be ignored
 1 0.2
 2 0.3

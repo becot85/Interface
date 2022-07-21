@@ -4,9 +4,9 @@ $ONCE
 common: float, multicolumn
 
 $MULTILINE: 2
-a: int, 0
-z: int, 1
-T9: float, 2
-rho: float, 3
-r1: float, 5
-r2: float, 6
+a: int, 2-5
+z: int, 6-10
+T9: float, 13-21
+rho: float, 22-31
+r1: float, 42-49
+r2: float, 50-59

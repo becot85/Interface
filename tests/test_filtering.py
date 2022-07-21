@@ -27,7 +27,7 @@ class TestFiltering:
 
         # Compare filtered data with the raw data
         quantities = "label"
-        conditions = ["number = 0.100445"]
+        conditions = ["number = 0.1004"]
         expected = [["label1"]]
         self.__compare_filter(quantities, conditions, expected)
 
@@ -63,7 +63,7 @@ class TestFiltering:
 
         # Compare filtered data with the raw data
         quantities = "label"
-        conditions = ["number != 0.100445"]
+        conditions = ["number != 0.1004"]
         expected = [["label2"], ["label3"], ["label4"]]
         self.__compare_filter(quantities, conditions, expected)
 
@@ -101,7 +101,7 @@ class TestFiltering:
 
         # Compare filtered data with the raw data
         quantities = "label"
-        conditions = ["number >= 0.100445"]
+        conditions = ["number >= 0.1004"]
         expected = [["label1"], ["label2"], ["label4"]]
         self.__compare_filter(quantities, conditions, expected)
 
@@ -139,7 +139,7 @@ class TestFiltering:
 
         # Compare filtered data with the raw data
         quantities = "label"
-        conditions = ["number > 0.100445"]
+        conditions = ["number > 0.1004"]
         expected = [["label2"], ["label4"]]
         self.__compare_filter(quantities, conditions, expected)
 
@@ -176,7 +176,7 @@ class TestFiltering:
 
         # Compare filtered data with the raw data
         quantities = "label"
-        conditions = ["number <= 0.100445"]
+        conditions = ["number <= 0.1004"]
         expected = [["label1"], ["label3"]]
         self.__compare_filter(quantities, conditions, expected)
 
@@ -213,7 +213,7 @@ class TestFiltering:
 
         # Compare filtered data with the raw data
         quantities = "label"
-        conditions = ["number < 0.100445"]
+        conditions = ["number < 0.1004"]
         expected = [["label3"]]
         self.__compare_filter(quantities, conditions, expected)
 
@@ -263,7 +263,7 @@ class TestFiltering:
         # Compare filtered data with the raw data
         quantities = ["number", "label"]
         conditions = ["A in string", "h in string"]
-        expected = [[0.100445, "label1"], [35, "label2"]]
+        expected = [[0.1004, "label1"], [35, "label2"]]
         self.__compare_filter(quantities, conditions, expected)
 
 
@@ -306,7 +306,7 @@ class TestFiltering:
         # Compare filtered data with the raw data
         quantities = ["number", "left"]
         conditions = ["right <= 3", "right > 0.2"]
-        expected = [[0.100445, [1,2,3]], [-9e-1, [1]], [2.6, [2,3]]]
+        expected = [[0.1004, [1,2,3]], [-9e-1, [1]], [2.6, [2,3]]]
         self.__compare_filter(quantities, conditions, expected)
 
         # Compare filtered data with the raw data

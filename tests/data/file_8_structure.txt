@@ -7,8 +7,8 @@ test3: str, 2
 
 string: str
 
-label: str, 0
-number: float, 1
+label: str, 0-8
+number: float, 9-18
 
 $MULTILINE: 5
 left: int, 0
