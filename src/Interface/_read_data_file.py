@@ -95,7 +95,7 @@ class read_data_file( data_file.data_file ):
 
                         # Pre-screen the structure content to gain insights on how to proceed
                         skip, structure, read_structure, multiline, ml_is_digit, ml_end_point = \
-                                self.__screen_structure(structure, read_structure)
+                                self._screen_structure(structure, read_structure)
 
                         # If there is something to collect on this line ..
                         if not skip:
@@ -147,18 +147,14 @@ class read_data_file( data_file.data_file ):
         '''
 
         # Read the instructions on how to read the data file
-        bloc, header, header_keys = self._create_bloc_structure(structure_path)
+        self.__bloc, self.__header, self.__header_keys = \
+            self._create_bloc_structure(structure_path)
 
         # Read all the lines of the input file
-        lines, nb_lines = self._read_lines(file_path)
+        self.__lines, self.__nb_lines = self._read_lines(file_path)
 
-        # Temporarily assign self to recurent variables
-        self.__bloc = bloc
-        self.__header = header
-        self.__header_keys = header_keys
+        # Temporarily assign self to reeaining recurent variables
         self.__ignore_lines = ignore_lines
-        self.__lines = lines
-        self.__nb_lines = nb_lines
 
         # Initialize the line index
         i_line, line = self.__get_start_line_index()
@@ -186,94 +182,6 @@ class read_data_file( data_file.data_file ):
         del self.__ignore_lines
         del self.__lines
         del self.__nb_lines
-
-
-    ######################
-    #  Screen structure  #
-    ######################
-    def __screen_structure(self, structure, read_structure):
-
-        '''
-
-        Pre-screen the structure to gain insights on how to proceed
-        with the upcoming data extraction process.
-
-        Arguments
-        =========
-            structure (dict): one line of a structure sub-bloc
-            read_structure (list): list of already-covered structures
-
-        '''
-
-        # Check whether the upcoming reading should be skipped
-        skip, read_structure = self.__check_skip(structure, read_structure)
-
-        # If upcoming data is spread over multiple lines ..
-        if "$MULTILINE" in structure:
-
-            # Set multiline flag
-            multiline = True
-
-            # Set multiline variables if number of loops is provided 
-            if utils.remove_all_spaces(structure["$MULTILINE"]).isdigit():
-                ml_is_digit = True
-                ml_end_point = int(structure["$MULTILINE"])
-
-            # Set multiline variables if number of loops is dynamic 
-            else:
-                ml_is_digit = False
-                ml_end_point = utils.remove_initial_spaces(structure["$MULTILINE"])
-
-        # Set multiline flag to False if upcoming data is on one line
-        else:
-            multiline = False
-            ml_is_digit = None
-            ml_end_point = None
-
-        # Remove header flags from structure dictionary
-        structure = self._remove_flags(structure)
-
-        # Return pre-screen result
-        return skip, structure, read_structure, multiline, ml_is_digit, ml_end_point
-
-
-    ################
-    #  Check skip  #
-    ################
-    def __check_skip(self, structure, read_structure):
-
-        '''
-
-        Keep track of the structures already covered and look
-        for the $ONCE header to make sure it is only convered
-        once throughout the reading.
-
-        Arguments
-        =========
-            structure (dict): one line of a structure sub-bloc
-            read_structure (list): list of already-covered structures
-
-
-        '''
-
-        # First assume that the upcoming structure should not be skipped
-        skip = False
-
-        # If this is not the first time the structure is applied
-        if structure in read_structure:
-
-            # Skip if the bloc should be only read once
-            if "$ONCE" in list(structure.keys())[0]:
-                skip = True
-
-        # If this is the first time the structure is applied ..
-        else:
-
-            # Add it to the list of treated structures
-            read_structure.append(structure)
-
-        # Return check result
-        return skip, read_structure
 
 
     ###########################
