@@ -39,6 +39,45 @@ def remove_initial_spaces(string):
     return string[i_start:]
 
 
+########################
+#  Remove last spaces  #
+########################
+def remove_last_spaces(string):
+
+    '''
+
+    Take a string, and return the same string, but without empty
+    spaces at the end (e.g. "  the text " --> "  the text")
+
+    Argument
+    ========
+        string (str): string for which spaces need to be removed
+
+    '''
+
+    # Number of characters in the string
+    len_string = len(string)
+
+    # Return the same if the string is empty
+    if len_string == 0:
+        return string
+
+    # Return the same if already no space at the end 
+    if not string[-1] == " ":
+        return string
+
+    # Find the first instance of a non-space character
+    i_start = -1
+    while string[i_start] == " ":
+        i_start -= 1
+        if i_start == -len_string-1:
+            return ""
+
+    # Return the cleaned string
+    return string[:i_start+1]
+
+
+
 #########################
 #  Remove extra spaces  #
 #########################

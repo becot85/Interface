@@ -44,7 +44,7 @@ class data_file( object ):
         self._root_path = root_path
 
         # Define the header variables that are currently treated by the reading code
-        self.__valid_headers = ["START", "IGNORE", "MULTILINE", "ONCE"]
+        self._valid_headers = ["START", "IGNORE", "MULTILINE", "ONCE"]
         self.__not_main_headers = ["MULTILINE", "ONCE"]
 
 
@@ -157,7 +157,7 @@ class data_file( object ):
                 header[flag] = utils.remove_initial_spaces(l_split[1])
 
             # Print warning message if the header is treated by the code
-            if not flag in self.__valid_headers:
+            if not flag in self._valid_headers:
                 print("Warning - "+flag+" is not a valid header.")
 
             # Change line
@@ -384,4 +384,91 @@ class data_file( object ):
         # Return the new dictionary
         return new_dic
 
+
+    ######################
+    #  Screen structure  #
+    ######################
+    def _screen_structure(self, structure, read_structure):
+
+        '''
+
+        Pre-screen the structure to gain insights on how to proceed
+        with the upcoming data extraction process.
+
+        Arguments
+        =========
+            structure (dict): one line of a structure sub-bloc
+            read_structure (list): list of already-covered structures
+
+        '''
+
+        # Check whether the upcoming reading should be skipped
+        skip, read_structure = self.__check_skip(structure, read_structure)
+
+        # If upcoming data is spread over multiple lines ..
+        if "$MULTILINE" in structure:
+
+            # Set multiline flag
+            multiline = True
+
+            # Set multiline variables if number of loops is provided 
+            if utils.remove_all_spaces(structure["$MULTILINE"]).isdigit():
+                ml_is_digit = True
+                ml_end_point = int(structure["$MULTILINE"])
+
+            # Set multiline variables if number of loops is dynamic 
+            else:
+                ml_is_digit = False
+                ml_end_point = utils.remove_initial_spaces(structure["$MULTILINE"])
+
+        # Set multiline flag to False if upcoming data is on one line
+        else:
+            multiline = False
+            ml_is_digit = None
+            ml_end_point = None
+
+        # Remove header flags from structure dictionary
+        structure = self._remove_flags(structure)
+
+        # Return pre-screen result
+        return skip, structure, read_structure, multiline, ml_is_digit, ml_end_point
+
+
+    ################
+    #  Check skip  #
+    ################
+    def __check_skip(self, structure, read_structure):
+
+        '''
+
+        Keep track of the structures already covered and look
+        for the $ONCE header to make sure it is only convered
+        once throughout the reading.
+
+        Arguments
+        =========
+            structure (dict): one line of a structure sub-bloc
+            read_structure (list): list of already-covered structures
+
+
+        '''
+
+        # First assume that the upcoming structure should not be skipped
+        skip = False
+
+        # If this is not the first time the structure is applied
+        if structure in read_structure:
+
+            # Skip if the bloc should be only read once
+            if "$ONCE" in list(structure.keys())[0]:
+                skip = True
+
+        # If this is the first time the structure is applied ..
+        else:
+
+            # Add it to the list of treated structures
+            read_structure.append(structure)
+
+        # Return check result
+        return skip, read_structure
 
