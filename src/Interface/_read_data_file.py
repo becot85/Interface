@@ -571,10 +571,18 @@ class read_data_file( data_file.data_file ):
                 for quantity in entries[i_entry][i_dct].keys():
 
                     # Remove extra space if it is a string
-                    if type(entries[i_entry][i_dct][quantity]) == str:
+                    if isinstance(entries[i_entry][i_dct][quantity], (str, np.str_)):
                         entries[i_entry][i_dct][quantity] = \
                             utils.remove_extra_spaces(\
                                 entries[i_entry][i_dct][quantity])
+
+                    # Remove extra space if it is a list of strings
+                    elif isinstance(entries[i_entry][i_dct][quantity], (list, np.ndarray)):
+                        for i_list in range(len(entries[i_entry][i_dct][quantity])):
+                            if isinstance(entries[i_entry][i_dct][quantity][i_list], (str, np.str_)):
+                                entries[i_entry][i_dct][quantity][i_list] = \
+                                    utils.remove_extra_spaces(\
+                                        entries[i_entry][i_dct][quantity][i_list])
 
         # Return the cleaned dictionaries
         return entries
