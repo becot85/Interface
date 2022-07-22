@@ -520,14 +520,11 @@ class write_data_file( data_file.data_file ):
 
         '''
 
-        # Collect quantity is the item is part of a list
+        # Return specific quantity if the item is part of a list
         if isinstance(i_list, int):
-            quantity = d[key][i_entry][i_list]
+            return d[key][i_entry][i_list]
         
-        # Collect quantity if it is not a list
+        # Return quantity if it is not a list
         else:
-            quantity = d[key][i_entry]
-
-        # Return extracted quantity
-        return quantity
+            return d[key][i_entry]
 
