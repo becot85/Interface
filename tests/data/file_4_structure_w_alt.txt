@@ -1,0 +1,8 @@
+id: int, 0
+label1: str, 1
+label2: float, 2
+
+$MULTILINE: TestEnd
+list: str, 5-14
+
+label3: str, 2

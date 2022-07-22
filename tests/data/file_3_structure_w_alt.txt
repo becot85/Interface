@@ -1,0 +1,24 @@
+label: int
+
+comp1: str
+
+comp2: str
+
+comp3: str
+
+comp6: str, 20-24
+comp5: str, 25-29
+comp4: str, 30-34
+
+comment: str, 3
+q_value: float, 5
+
+a0: float, 0-12
+
+a1: float, 13-25
+a2: float, 26-38
+a3: float, 39-51
+
+a4: float, 0-12
+a5: float, 13-25
+a6: float, 26-38

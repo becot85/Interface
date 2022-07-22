@@ -1,0 +1,14 @@
+$ONCE
+common: float, multicolumn
+
+$MULTILINE: 2
+r1: float, 0
+r2: float, 4
+
+z: int, multicolumn
+
+a: int, multicolumn
+
+rho: float, multicolumn
+
+T9: float, multicolumn

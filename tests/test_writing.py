@@ -83,12 +83,32 @@ class TestWriting:
         # Read original data file from ascii to Data Interface
         d = self.rdf.read_file(f, s)
 
+        # Write, read back, and compare
+        self.write_compare(s, d, float_sci)
+
+        # Write data file using a different structure file
+        s_alt = s.replace(".txt", "_w_alt.txt")
+        self.write_compare(s_alt, d, float_sci)
+
+
+    # Write compare
+    # =============
+    def write_compare(self, s, d, float_sci):
+
         # Write data file from Data Interface to ascii
         self.wdf.write_file(self.out_name, s, d, append=False, \
                 max_decimal=self.md, float_sci=float_sci)
 
         # Read newly generated ascii file back to Data Interface
         d_new = self.rdf.read_file(self.out_name, s)
+
+        # Compare the Interface Data objects
+        self.compare_data(d, d_new)
+
+
+    # Compare data
+    # ============
+    def compare_data(self, d, d_new):
 
         # Compare the number of entries and quantities
         assert d.nb_entries == d_new.nb_entries

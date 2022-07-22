@@ -1,0 +1,7 @@
+$MULTILINE: END
+value2: str, 1
+
+label: str
+
+$MULTILINE: END
+value1: str, 0

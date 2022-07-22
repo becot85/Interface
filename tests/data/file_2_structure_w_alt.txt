@@ -1,0 +1,4 @@
+value1: float, 0-15
+value2: str, 30-50
+
+label: str, 20-50

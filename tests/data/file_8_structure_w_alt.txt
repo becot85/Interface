@@ -1,0 +1,16 @@
+$IGNORE: HH This
+
+$ONCE
+test1: str, 0-10
+test2: str, 11-21
+test3: str, 22-33
+
+number: float, 0-10
+string: str, 11-30
+
+label: str
+
+$MULTILINE: 5
+left: int, 0
+
+right: float, multicolumn

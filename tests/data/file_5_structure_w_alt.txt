@@ -1,0 +1,12 @@
+comp1: str, 0
+comp2: str, 1
+
+comp3: str, 19-25
+
+comment: str, 43-51
+q_value: float, 52-69
+
+T9: float, multicolumn
+
+$MULTILINE: 3
+rate: float
