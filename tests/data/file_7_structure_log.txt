@@ -1,0 +1,12 @@
+$IGNORE: Do not
+
+$ONCE
+common: float, multicolumn
+
+$MULTILINE: 2
+a: int, 2-5
+z: int, 6-10
+T9: float, 13-21
+log_rho: float, 22-31
+log_r1: float, 42-49
+r2: float, 50-59

@@ -1,0 +1,8 @@
+log_id: float
+
+label1: str, 0
+log_label2: float, 1
+
+list: str, multicolumn
+
+label3: str

@@ -7,6 +7,7 @@
 
 # Import Python packages
 import numpy as np
+import copy
 
 # Import Interface toolkit
 from . import interface_utils as utils
@@ -30,7 +31,9 @@ class data( object ):
     Functions
     =========
         set_data: assign an input data dictionary
-        search_data: return data given sets of constraints (filters)
+        filter_data: return data object given sets of constraints (filters)
+        get_quantities: return quantities arrays given sets of constraints
+        print_quantities: same as get_quantities, but a printed version on your screen
 
     '''
 
@@ -52,6 +55,9 @@ class data( object ):
 
         # Initialize the data dictionaty
         self.set_data(data)
+
+        # Define what should be log(zero)
+        self.__log_zero = -99.0
 
 
 
@@ -81,6 +87,9 @@ class data( object ):
                 if isinstance(self.data[quantity][i_entry], list):
                     self.data[quantity][i_entry] = np.array(self.data[quantity][i_entry])
 
+        # Create entries for un-logged (10**) values if needed
+        self.__unlog_values()
+
 
 
     #############################
@@ -108,6 +117,130 @@ class data( object ):
         else:
             self.nb_entries = len(self.data[q])
 
+        # Find which quantities are digits
+        self.__find_digits()
+
+
+
+    #################
+    #  Find digits  #
+    #################
+    def __find_digits(self):
+
+        '''
+
+        Find and keep in memory all self.data quantities that are digits.
+        In case the quantity refers to an array, it will be flagged as 
+        a digit quantity if all items in the array are digits (with the
+        exception of None).
+
+        '''
+
+        # Declare the list of digit quantities
+        self.__digit_q_list = []
+
+        # For each quantity in the data dictionary ..
+        for q in self.quantities:
+
+            # Initially assume that this is a digit quantity
+            is_digit = True
+
+            # For each data entry ..
+            for i_entry in range(self.nb_entries):
+
+                # Switch is_digit to False if a non-digit item is detected
+                if isinstance(self.data[q][i_entry], (list, np.ndarray)):
+                    for item in self.data[q][i_entry]:
+                        if not isinstance(item, (int, float, type(None))):
+                            is_digit = False
+                elif not isinstance(self.data[q][i_entry], (int, float, type(None))):
+                    is_digit = False
+
+                # Exit the "for i_entry" loop if needed
+                if not is_digit:
+                    continue
+
+            # Mark the quantity as a digit if needed
+            if is_digit:
+                self.__digit_q_list.append(q)
+
+
+
+    ###################
+    #  Unlogs values  #
+    ###################
+    def __unlog_values(self):
+        
+        '''
+
+        Scan through the self.data dictionary, and create an entry
+        with an un-logged version of every "log_.." quantity. This
+        function assumes that all lists in self.data are numpy
+        arrays already.
+
+        '''
+
+        # Keep track of whether an un-logged quantity has been created
+        new_quantities = False
+
+        # For every digit "log_.." quantity in the data dictionary ..
+        for q in self.quantities:
+            if len(q) >= 5 and q in self.__digit_q_list:
+                if q[:4] == "log_":
+
+                    # If the un-logged quantity does not already exist ..
+                    q_unlog = q[4:]
+                    if not q_unlog in self.quantities:
+
+                        # Switch on flag annoncing that the data have been modified
+                        new_quantities = True
+
+                        # Create dictionary entry for the un-logged quantities
+                        self.data[q_unlog] = []
+                        for i_entry in range(self.nb_entries):
+                            self.data[q_unlog].append(self.__unlog_specific_item(self.data[q][i_entry]))
+
+        # Re-collect quantities if needed
+        if new_quantities:
+            self.__collect_data_quantities()
+
+
+    #########################
+    #  Unlog specific item  #
+    #########################
+    def __unlog_specific_item(self, item):
+
+        '''
+
+        Take an item (digit or a list of digits) and return its un-logged
+        version (10**), assuming it is already given in log.
+
+        Argument
+        ========
+            item (digit or list of digits): values to be un-logged
+
+        '''
+
+        # Make a copy of the item to avoid linked variable
+        new_item = copy.deepcopy(item)
+
+        # Un-log directly if not an array
+        if isinstance(item, (int, float)):
+            new_item = 10**(item)
+
+        # If item is an array ..
+        if isinstance(item, (list, np.ndarray)):
+
+            # Unlog each digit in the array
+            for i_item in range(len(item)):
+                if isinstance(item[i_item], (int, float)):
+                    new_item[i_item] = 10**(item[i_item])
+
+            # Make sure item is a numpy array
+            new_item = np.array(new_item)
+
+        # Return the un-logged version of the input item
+        return new_item
 
 
     #################
