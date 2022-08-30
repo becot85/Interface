@@ -56,10 +56,6 @@ class data( object ):
         # Initialize the data dictionaty
         self.set_data(data)
 
-        # Define what should be log(zero)
-        self.__log_zero = -99.0
-
-
 
     ##############
     #  Set data  #
@@ -89,7 +85,6 @@ class data( object ):
 
         # Create entries for un-logged (10**) values if needed
         self.__unlog_values()
-
 
 
     #############################

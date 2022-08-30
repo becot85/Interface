@@ -8,6 +8,7 @@
 # Standard Python modules
 import sys
 import numpy as np
+import copy
 
 # Data object to collect the data dictionary resulting from reading
 from . import data as dd
@@ -53,11 +54,14 @@ class write_data_file( data_file.data_file ):
         self.__empty_char = empty_char + self.__spacing
         self.__float_sci = float_sci
 
+        # Define what should be log(zero)
+        self.__log_zero = -99.0
+
 
     ################
     #  Write file  #
     ################
-    def write_file(self, file_path, structure_path, data, \
+    def write_file(self, file_path, structure_path, data_ori, \
                    max_entry_per_w=100, max_decimal=3, \
                    append=False, float_sci=False):
 
@@ -70,17 +74,23 @@ class write_data_file( data_file.data_file ):
         =========
             file_path (str): path to data file to be writen
             structure_path (str): path to the structure file (how to read data file)
-            data (Data object): object containing the data to be writen
+            data_ori (Data object): object containing the data to be writen
             max_decimal (int): number of decimals for digits in scientific notation
             append (bool): If True, writing process will add to an existing file
 
         '''
+
+        # Make a hard copy of the Data object so that it is not externally modified
+        data = copy.deepcopy(data_ori)
 
         # Overwrite scientific notation flag
         self.__float_sci = float_sci
 
         # Initialize writing process (returns output file)
         f, bloc = self.__init_writing(file_path, structure_path, data, max_decimal, append)
+
+        # Log values if needed
+        data = self.__log_values(bloc, data)
 
         # Declare output text and structures that have been applied
         text = ""
@@ -179,6 +189,99 @@ class write_data_file( data_file.data_file ):
 
         # Return output file object
         return f, bloc
+
+
+    ################
+    #  Log values  #
+    ################
+    def __log_values(self, bloc, data):
+
+        '''
+
+        Take a Data object and create a log10(digit) version of quantities
+        found in the structure bloc if needed.
+
+        Arguments
+        =========
+            bloc (list of dictionaries): dictionaries containing the structure file info
+            data (Data object): object containing the data to be writen
+
+        '''
+
+        # Collect all new quantities that starts with "log_"
+        q_log_list = []
+        for sub_bloc in bloc:
+            for structure in sub_bloc["lines"]:
+                for key, pos in structure.items():
+                    if len(key) >= 5:
+                        if key[:4] == "log_":
+                            q_log_list.append(key)
+
+        # For each quantities that need to be logged ..
+        for q in q_log_list:
+
+            # If the logged quantity does not already exist
+            # and if the un-logged quantity exists ..
+            q_unlog = q[4:]
+            if (not q in data.quantities) and (q_unlog in data.quantities):
+
+                # Create dictionary entry for the logged quantities
+                data.data[q] = []
+                for i_entry in range(data.nb_entries):
+
+                    # Log value directly if not an array
+                    if isinstance(data.data[q_unlog][i_entry], (int, float)):
+                        data.data[q].append(self.__log_single_value(data.data[q_unlog][i_entry]))
+
+                    # Log values if array is provided
+                    elif isinstance(data.data[q_unlog][i_entry], (list, np.ndarray)):
+                        data.data[q].append([])
+                        for i_item in range(len(data.data[q_unlog][i_entry])):
+                            data.data[q][-1].append(\
+                                self.__log_single_value(data.data[q_unlog][i_entry][i_item]))
+
+                # Add the logged quantities in the list of available quantities
+                data.quantities.append(q)
+
+        # Return the updated data object
+        return data
+
+
+    ######################
+    #  Log single value  #
+    ######################
+    def __log_single_value(self, value):
+
+        '''
+
+        Return the log10 of a single value, including exceptions.
+
+        Argument
+        ========
+            value (int or float): value to be logged
+
+        '''
+
+        # Special case of log(0)
+        if value == 0:
+            log_value = copy.deepcopy(self.__log_zero)
+
+        # If value is not equal zero ..
+        else:
+
+            # Try to log the value
+            if isinstance(value, (int, float)):
+                if value > 0:
+                    log_value = np.log10(value)
+                else:
+                    log_value = None
+
+            # Set logged value to None if value is not a digit
+            else:
+                log_value = None
+
+        # Return logged value
+        return log_value
 
 
     ######################

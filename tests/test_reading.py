@@ -267,11 +267,11 @@ class TestReading:
         assert list(d.data["rho"][0]) == [1, 2]
         assert list(d.data["rho"][1]) == [5, 6]
         assert list(d.data["rho"][2]) == [4, 5]
-        assert list(d.data["rho"][3]) == [3, -4]
+        assert list(d.data["rho"][3]) == [3, 4]
         assert list(d.data["r1"][0]) == [None, 1.1]
         assert list(d.data["r1"][1]) == [None, None]
         assert list(d.data["r1"][2]) == [2.2, None]
-        assert list(d.data["r1"][3]) == [-4.847, -4.233]
+        assert list(d.data["r1"][3]) == [4.847, 4.233]
         assert list(d.data["r2"][0]) == [-100.000, -100.000]
         assert list(d.data["r2"][1]) == [-59.098, -54.914]
         assert list(d.data["r2"][2]) == [-100.000, -100.000]
@@ -280,8 +280,6 @@ class TestReading:
 
         # Read and test log data file
         d = self.rdf.read_file("file_7_log.txt", "file_7_structure_log.txt")
-
-        # Test the number of entries and quantities
         assert d.nb_entries == 4
         assert d.nb_quantities == 9
         assert list(d.data["common"][0]) == [1.1, 2.2, 3.3, 4.4, -1e10]
@@ -290,7 +288,7 @@ class TestReading:
         assert list(d.data["log_rho"][0]) == [1, 2]
         assert list(d.data["log_rho"][1]) == [5, 6]
         assert list(d.data["log_rho"][2]) == [4, 5]
-        assert list(d.data["log_rho"][3]) == [3, -4]
+        assert list(d.data["log_rho"][3]) == [3, 4]
         assert round(d.data["rho"][0][0],self.prec) == round(10**(1),self.prec)
         assert round(d.data["rho"][0][1],self.prec) == round(10**(2),self.prec)
         assert round(d.data["rho"][1][0],self.prec) == round(10**(5),self.prec)
@@ -298,18 +296,18 @@ class TestReading:
         assert round(d.data["rho"][2][0],self.prec) == round(10**(4),self.prec)
         assert round(d.data["rho"][2][1],self.prec) == round(10**(5),self.prec)
         assert round(d.data["rho"][3][0],self.prec) == round(10**(3),self.prec)
-        assert round(d.data["rho"][3][1],self.prec) == round(10**(-4),self.prec)
+        assert round(d.data["rho"][3][1],self.prec) == round(10**(4),self.prec)
         assert list(d.data["log_r1"][0]) == [None, 1.1]
         assert list(d.data["log_r1"][1]) == [None, None]
         assert list(d.data["log_r1"][2]) == [2.2, None]
-        assert list(d.data["log_r1"][3]) == [-4.847, -4.233]
+        assert list(d.data["log_r1"][3]) == [4.847, 4.233]
         assert d.data["r1"][0][0] == None
         assert round(d.data["r1"][0][1],self.prec) == round(10**(1.1),self.prec)
         assert d.data["r1"][1][0] == None
         assert d.data["r1"][1][1] == None
         assert round(d.data["r1"][2][0],self.prec) == round(10**(2.2),self.prec)
         assert d.data["r1"][2][1] == None
-        assert round(d.data["r1"][3][0],self.prec) == round(10**(-4.847),self.prec)
-        assert round(d.data["r1"][3][1],self.prec) == round(10**(-4.233),self.prec)
+        assert round(d.data["r1"][3][0],self.prec) == round(10**(4.847),self.prec)
+        assert round(d.data["r1"][3][1],self.prec) == round(10**(4.233),self.prec)
 
 

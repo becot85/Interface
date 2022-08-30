@@ -1,4 +1,4 @@
-id: int
+id: float
 
 label1: str, 0
 label2: float, 1
